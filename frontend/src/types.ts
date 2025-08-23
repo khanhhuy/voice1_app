@@ -36,6 +36,14 @@ interface IReplyEndSignal {
 
 type IReplyControlMessage = IReplyStartSignal | IReplyEndSignal
 
+declare global {
+  interface Window {
+    voice1: {
+      token?: string
+    }
+  }
+}
+
 export type {
   ISignal,
   IStopSignal,
