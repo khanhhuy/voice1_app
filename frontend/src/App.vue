@@ -8,9 +8,14 @@
 import { useProvideAccount } from '@/modules/account/useAccount'
 import './styles/index.css'
 import 'remixicon/fonts/remixicon.css'
+import { onMounted } from 'vue'
 
 window.voice1 ||= {}
 
-useProvideAccount()
+const { checkLogin } = useProvideAccount()
+
+onMounted(() => {
+  checkLogin()
+})
 
 </script>

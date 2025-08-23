@@ -6,12 +6,12 @@
       </h1>
 
       <Loading
-        v-if="!isLoggedIn"
+        v-if="isLoggingIn"
         text="Loading your account..."
       />
 
       <div
-        v-show="isLoggedIn"
+        v-show="isLoggedIn && !isLoggingIn"
         class="space-y-4"
       >
         <div>
@@ -51,13 +51,26 @@
 import { useAccount } from '@/modules/account/useAccount'
 import { Button } from '@/components/ui/button'
 import Loading from '@/components/ui/Loading.vue'
+import { onMounted, ref } from 'vue'
 
-const { isLoggedIn, user } = useAccount()!
+const { isLoggedIn, user, handleLogin, handleLogout: logout, isLoggingIn } = useAccount()!
 
-// TODO: when the component is mounted, it check the url to see if this is a redirect
-// from the backend with a new token, if 
+onMounted(async () => {
+  // Check if there's a token in the URL (redirect from backend)
+  const urlParams = new URLSearchParams(window.location.search)
+  const token = urlParams.get('token')
+  
+  if (token) {
+    // Handle login with token from URL
+    const success = await handleLogin(token)
+    if (success) {
+      // Remove token from URL after successful login
+      window.history.replaceState({}, '', '/account')
+    }
+  }
+})
 
 const handleLogout = () => {
-  console.log('Logout clicked')
+  logout()
 }
 </script>

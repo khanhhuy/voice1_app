@@ -10,7 +10,7 @@ import { routes as authRoutes } from './controllers/authController'
 import { routes as userRoutes } from './controllers/userController'
 import { requestContext } from './services/requestContext'
 import { authMiddleware, getUserFromToken } from './middleware/authMiddleware'
-import { sync } from './db'
+import { getDb, sync } from './db'
 
 const app = express()
 
@@ -100,6 +100,10 @@ server.listen(PORT, async () => {
   try {
     console.log(`Server listening on port ${PORT}`)
     console.log(`WebSocket audio service available at ws://localhost:${PORT}/talk`)
+
+    // initialize models
+    getDb()
+
     // await sync()
   } catch (error) {
     console.error('Failed to start server:', error)

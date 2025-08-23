@@ -17,7 +17,6 @@ async function getUserFromToken(token: string): Promise<User | null> {
     throw new Error('Invalid token payload')
   }
 
-
   const user = await ModelUser.findOne({
     where: {
       id: decoded.user_id,
@@ -44,16 +43,15 @@ const authMiddleware = async (req: Request, res: Response, next: NextFunction) =
       throw new Error('No token provided')
     }
 
-
-
     const user = await getUserFromToken(token)
 
     if (!user) {
       throw new Error('User not found')
     }
 
-    requestContext.set('user', user)
-    next()
+    requestContext.run({ user }, () => {
+      next()
+    })
 
   } catch (err) {
     res.status(401).json({
