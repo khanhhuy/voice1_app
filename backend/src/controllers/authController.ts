@@ -2,9 +2,17 @@ import express from 'express'
 import passport from 'passport'
 import jwt from 'jsonwebtoken'
 import User from '@/models/User'
+import Team from '@/models/Team'
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
 
 const router = express.Router()
+
+// Generate a unique team name based on user email and timestamp
+function generateTeamName(email: string): string {
+  const username = email.split('@')[0]
+  const timestamp = Date.now().toString(36)
+  return `${username}-team-${timestamp}`.toLowerCase()
+}
 
 // Initialize passport Google strategy
 passport.use(new GoogleStrategy({
@@ -18,12 +26,20 @@ passport.use(new GoogleStrategy({
       let user = await User.findOne({ where: { email: profile.emails![0].value } })
       
       if (!user) {
-        // Create new user
+        // Create new team first
+        const teamName = generateTeamName(profile.emails![0].value)
+        const team = await Team.create({
+          name: teamName,
+          label: `${profile.displayName}'s Team`,
+        })
+        
+        // Create new user with team reference
         user = await User.create({
           email: profile.emails![0].value,
           display_name: profile.displayName,
           sso_provider: 'google',
           settings: {},
+          team_id: team.id,
         })
       }
 

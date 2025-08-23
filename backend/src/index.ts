@@ -5,8 +5,9 @@ import 'dotenv/config'
 import passport from 'passport'
 import { createServer } from 'http'
 import { AudioWebSocketService } from './controllers/audioWebSocket'
-import { routes as conversationsRoutes } from './controllers/conversations'
+import { routes as conversationsRoutes } from './controllers/conversationController'
 import { routes as authRoutes } from './controllers/authController'
+import { routes as userRoutes } from './controllers/userController'
 import { requestContext } from './services/requestContext'
 import { authMiddleware, getUserFromToken } from './middleware/authMiddleware'
 import { sync } from './db'
@@ -51,6 +52,7 @@ app.use((req, res, next) => {
 
 app.use('/api/auth', authRoutes)
 app.use('/api/conversations', conversationsRoutes)
+app.use('/api/users', userRoutes)
 
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
