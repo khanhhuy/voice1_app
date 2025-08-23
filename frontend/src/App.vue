@@ -1,6 +1,5 @@
 <template>
-  <div>
-    Voice 1
+  <div class="w-full h-full">
     <router-view />
   </div>
 </template>
