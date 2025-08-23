@@ -41,7 +41,7 @@ src/
 
 - Each module represents a business feature with its own component tree
 - Module root components are typically used in `router.ts`
-- Cross-module imports are **not allowed** - shared logic goes in `lib/` or `services/`
+- Cross-module imports are allowed, but shared logic should generally be in `lib/` or `services/`
 - Modules can have scoped state that's not global but shared within the module
 
 ## UI Components & Styling

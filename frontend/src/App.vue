@@ -5,8 +5,10 @@
 </template>
 
 <script setup lang="ts">
+import { useProvideAccount } from '@/modules/account/useAccount'
 import './styles/index.css'
 import 'remixicon/fonts/remixicon.css'
 
+useProvideAccount()
 
 </script>

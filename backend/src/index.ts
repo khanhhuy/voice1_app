@@ -8,7 +8,7 @@ import { AudioWebSocketService } from './controllers/audioWebSocket'
 import { routes as conversationsRoutes } from './controllers/conversations'
 import { routes as authRoutes } from './controllers/authController'
 import { requestContext } from './services/requestContext'
-import { authMiddleware, getUserFromRequest, getUserFromToken } from './middleware/authMiddleware'
+import { authMiddleware, getUserFromToken } from './middleware/authMiddleware'
 import { sync } from './db'
 
 const app = express()

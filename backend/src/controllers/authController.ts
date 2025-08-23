@@ -68,7 +68,7 @@ router.get('/google/callback',
     )
 
     // Redirect to frontend with token
-    res.redirect(`${process.env.WEB_URL}/app/account?token=${token}`)
+    res.redirect(`${process.env.WEB_URL}/account?token=${token}`)
   }
 )
 

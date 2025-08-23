@@ -29,12 +29,13 @@
             Login to your account
           </h1>
           <p class="text-center text-sm text-muted-foreground mt-2">
-            We auto create an account for you if you don't have one
+            We'll auto create an account for you if you don't have one
           </p>
 
           <Button
             variant="outline"
             class="w-full mt-4"
+            @click="loginWithGoogle"
           >
             <i class="ri-google-fill" />
             Google
@@ -59,13 +60,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import { Button } from '@/components/ui/button'
+import { baseURL } from '@/lib/ajax'
 
-const email = ref('')
-
-function onSubmit () {
-  // Integrate your auth flow here
-  console.log('sign in with email', email.value)
+function loginWithGoogle () {
+  // redirect to google auth
+  window.location.href = `${baseURL}/api/auth/google`
 }
+
+
 </script>

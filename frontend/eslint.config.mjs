@@ -28,6 +28,7 @@ export default defineConfigWithVueTs(
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unsafe-function-type': 'off',
       '@typescript-eslint/no-confusing-void-expression': 'off',
+      '@typescript-eslint/no-redundant-type-constituents': 'off',
 
       '@stylistic/ts/quotes': ['error', 'single'],
       '@stylistic/ts/object-curly-spacing': 'off',
