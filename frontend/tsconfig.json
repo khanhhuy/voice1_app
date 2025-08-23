@@ -1,0 +1,21 @@
+{
+  "files": [],
+  "exclude": [
+    "vite.config.ts",
+    "vite-service-worker.config.ts",
+    "tailwind.config.ts",
+  ],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ],
+  "compilerOptions": {
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "allowJs": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}

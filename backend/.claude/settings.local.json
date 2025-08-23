@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(pnpm i:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(rm:*)",
+      "Bash(ls:*)"
+    ],
+    "deny": []
+  }
+}

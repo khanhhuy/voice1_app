@@ -1,0 +1,1 @@
+- This project uses pnpm as package manager
