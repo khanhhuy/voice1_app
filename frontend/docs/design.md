@@ -54,7 +54,6 @@ Install new components using:
 pnpm dlx shadcn-vue@latest add button
 ```
 
-Components are automatically added to `src/components/ui/index.ts` - no manual modification needed.
 To import a component, use this syntax:
 ```
 import { Button } from '@/components/ui/button'
