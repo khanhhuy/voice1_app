@@ -16,10 +16,12 @@ import { onMounted } from 'vue'
 import AppSidebar from '@/modules/sidebar/AppSidebar.vue'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import PageHeader from '@/modules/header/PageHeader.vue'
+import { useProvidePageHeader } from './modules/header/usePageHeader'
 
 window.voice1 ||= {}
 
 const { checkLogin } = useProvideAccount()
+useProvidePageHeader()
 
 onMounted(() => {
   checkLogin()

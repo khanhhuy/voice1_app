@@ -1,11 +1,21 @@
 <template>
-  <Sidebar variant="inset" collapsible="icon">
+  <Sidebar
+    variant="inset"
+    collapsible="icon"
+  >
     <SidebarHeader class="flex flex-row items-center gap-2">
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton asChild :is-active="isActive('/')">
+          <SidebarMenuButton
+            as-child
+            :is-active="isActive('/')"
+          >
             <RouterLink to="/">
-              <Logo :width="24" :height="24" class="rounded"/>
+              <Logo
+                :width="24"
+                :height="24"
+                class="rounded"
+              />
               <span class="font-medium">Voice 1</span>
             </RouterLink>
           </SidebarMenuButton>
@@ -20,14 +30,20 @@
         </SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
-              <SidebarMenuItem v-for="item in practiceItems" :key="item.title">
-                <SidebarMenuButton asChild :is-active="isActive(item.url)">
-                  <RouterLink :to="item.url">
-                    <component :is="item.icon" />
-                    <span>{{item.title}}</span>
-                  </RouterLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+            <SidebarMenuItem
+              v-for="item in practiceItems"
+              :key="item.title"
+            >
+              <SidebarMenuButton
+                as-child
+                :is-active="isActive(item.url)"
+              >
+                <RouterLink :to="item.url">
+                  <component :is="item.icon" />
+                  <span class="text-sm">{{ item.title }}</span>
+                </RouterLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>
@@ -38,7 +54,10 @@
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild :is-active="isActive('/sessions')">
+              <SidebarMenuButton
+                as-child
+                :is-active="isActive('/sessions')"
+              >
                 <RouterLink to="/sessions">
                   <History />
                   <span>Past Sessions</span>
@@ -53,7 +72,10 @@
     <SidebarFooter>
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton asChild :is-active="isActive('/account')">
+          <SidebarMenuButton
+            as-child
+            :is-active="isActive('/account')"
+          >
             <RouterLink to="/account">
               <User />
               <span>My Account</span>
@@ -66,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-import { MicVocal, LifeBuoy, History, User } from "lucide-vue-next"
+import { MicVocal, LifeBuoy, History, User } from 'lucide-vue-next'
 import {
   Sidebar,
   SidebarContent,
@@ -78,25 +100,25 @@ import {
   SidebarMenuItem,
   SidebarHeader,
   SidebarFooter,
-} from "@/components/ui/sidebar"
-import Logo from "@/components/ui/Logo.vue"
-import { useRoute } from "vue-router"
+} from '@/components/ui/sidebar'
+import Logo from '@/components/ui/Logo.vue'
+import { useRoute } from 'vue-router'
 
-function isActive(path: string) {
+function isActive (path: string) {
   return useRoute().path === path
 }
 
 // Menu items.
 const practiceItems = [
   {
-    title: "Product Team Scenarios",
-    url: "/practice/product",
+    title: 'Product Team Scenarios',
+    url: '/practice/product',
     icon: MicVocal,
   },
   {
-    title: "Customer Support Scenarios",
-    url: "/practice/customer-support",
+    title: 'Customer Support Scenarios',
+    url: '/practice/customer-support',
     icon: LifeBuoy,
   },
-];
+]
 </script>
