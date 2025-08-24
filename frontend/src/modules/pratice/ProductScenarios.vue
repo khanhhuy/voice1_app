@@ -20,8 +20,8 @@
         class="mb-14"
       >
         <div class="category-header">
-          <h2 class="font-semibold text-gray-800 flex items-center">
-            <i :class="[category.icon, 'mr-2']" /> {{ category.title }}
+          <h2 class="font-semibold text-lg flex items-center">
+            <i :class="[category.icon, category.iconColor, 'mr-1']" /> {{ category.title }}
           </h2>
           <p class="text-gray-600 text-sm mt-1">
             {{ category.description }}
@@ -43,12 +43,41 @@
               :class="{ 'flex justify-between items-start mb-4': scenario.priority, 'mb-4': !scenario.priority }"
             >
               <div>
-                <h3 class="font-medium text-gray-800">
-                  {{ scenario.title }}
-                </h3>
+                <div class="flex items-center justify-between">
+                  <h3 class="font-medium text-gray-800">
+                    {{ scenario.title }}
+                  </h3>
+                  <div
+                    v-tooltip="{
+                      content: difficultyTooltip(scenario.difficulty),
+                    }"
+                    class="flex items-center gap-1 hover:text-gray-600 cursor-pointer text-gray-400"
+                  >
+                    <div
+                      class="rounded-full w-2 h-2"
+                      :class="{
+                        'bg-[#8EC8F6]': scenario.difficulty === 'gentle',
+                        'bg-[#F5AE73]': scenario.difficulty === 'standard',
+                        'bg-[#e25356]': scenario.difficulty === 'challenging'
+                      }" 
+                    />
+                    <span class="text-xs">
+                      {{ scenario.difficulty }}
+                    </span>
+                  </div>
+                </div>
                 <p class="text-gray-600 text-sm mt-2 h-20">
                   {{ scenario.description }}
                 </p>
+                <!-- <div class="text-sm text-gray-600 mt-2">
+                  <div>
+                    • Skills: active listening, follow-up questions
+                  </div>
+                  <div>
+                    • 
+                    <span class="text-xs text-gray-500"><i class="ri-time-line mr-1" /> {{ scenario.duration }}</span>
+                  </div>
+                </div> -->
                 <div class="flex items-center mt-2">
                   <div>
                     <img
@@ -95,6 +124,18 @@ import { Button } from '@/components/ui/button'
 const { setTitle } = usePageHeader()!
 setTitle('Product Team')
 
+function difficultyTooltip (difficulty: string) {
+  switch (difficulty) {
+    case 'gentle':
+      return 'Patient customers with clear problems. Great for practicing active listening and follow-up questions without pressure'
+    case 'standard':
+      return 'Real-world scenarios with moderate complexity. Customers may have multiple concerns but are generally reasonable to work with'
+    case 'challenging':
+      return 'Frustrated customers, technical edge cases, or competing priorities. Tests your ability to stay calm and find creative solutions'
+  }
+  return ''
+}
+
 const categories = ref([
   {
     id: 'user-research',
@@ -116,7 +157,9 @@ const categories = ref([
         },
         description: 'New customer completed onboarding 2 weeks ago. You want to understand their initial experience and current workflow.',
         duration: '10-15 min practice',
-        priority: null
+        priority: null,
+        difficulty: 'gentle',
+        skills: ['active listening', 'follow-up questions']
       },
       {
         id: 4,
@@ -131,7 +174,9 @@ const categories = ref([
         },
         description: 'Customer signed up 1 month ago but has low usage. You need to identify barriers and friction points.',
         duration: '15-20 min practice',
-        priority: null
+        priority: null,
+        difficulty: 'gentle',
+        skills: ['problem identification', 'empathy']
       },
       {
         id: 5,
@@ -146,54 +191,9 @@ const categories = ref([
         },
         description: 'Customer is using your product in an unexpected way. Learn about their creative workflow and potential new features.',
         duration: '15-20 min practice',
-        priority: null
-      }
-    ]
-  },
-  {
-    id: 'problem-solving',
-    title: 'Problem Solving & Investigation',
-    icon: 'ri-search-line',
-    iconColor: 'text-[#3E63DD]',
-    description: 'Practice handling complex technical issues and edge cases',
-    scenarios: [
-      {
-        id: 1,
-        title: 'Support Escalation Call',
-        person: {
-          name: 'Sarah Chen',
-          role: 'Head of Operations, TechCorp',
-          avatar: 'https://avatar.iran.liara.run/public/girl',
-          icon: 'ri-customer-service-2-line',
-          iconBg: 'bg-blue-100',
-          iconColor: 'text-blue-600'
-        },
-        description: 'Customer support couldn\'t resolve a complex technical issue. Customer is frustrated and you need to dig deeper into their setup to find a solution.',
-        duration: '15-20 min practice',
-        priority: {
-          text: 'High Priority',
-          bg: 'bg-red-100',
-          textColor: 'text-red-800'
-        }
-      },
-      {
-        id: 2,
-        title: 'Edge Case Investigation',
-        person: {
-          name: 'Marcus Johnson',
-          role: 'CTO, InnovateStartup',
-          avatar: 'https://avatar.iran.liara.run/public/boy',
-          icon: 'ri-bug-line',
-          iconBg: 'bg-purple-100',
-          iconColor: 'text-purple-600'
-        },
-        description: 'Customer reports strange behavior that only happens in their specific configuration. You need to understand their unique setup and find the root cause.',
-        duration: '15-20 min practice',
-        priority: {
-          text: 'Technical',
-          bg: 'bg-yellow-100',
-          textColor: 'text-yellow-800'
-        }
+        priority: null,
+        difficulty: 'standard',
+        skills: ['pain point discovery', 'use case analysis']
       }
     ]
   },
@@ -221,7 +221,9 @@ const categories = ref([
           text: 'Feedback',
           bg: 'bg-blue-100',
           textColor: 'text-blue-800'
-        }
+        },
+        difficulty: 'gentle',
+        skills: ['active listening', 'follow-up questions']
       },
       {
         id: 7,
@@ -240,7 +242,60 @@ const categories = ref([
           text: 'Recruitment',
           bg: 'bg-green-100',
           textColor: 'text-green-800'
-        }
+        },
+        difficulty: 'standard',
+        skills: ['value proposition', 'scope definition']
+      }
+    ]
+  },
+  {
+    id: 'problem-solving',
+    title: 'Problem Solving & Investigation',
+    icon: 'ri-search-line',
+    iconColor: 'text-[#3E63DD]',
+    description: 'Practice handling complex technical issues and edge cases',
+    scenarios: [
+      {
+        id: 1,
+        title: 'Support Escalation Call',
+        person: {
+          name: 'Sarah Chen',
+          role: 'Head of Operations, TechCorp',
+          avatar: 'https://avatar.iran.liara.run/public/girl',
+          icon: 'ri-customer-service-2-line',
+          iconBg: 'bg-blue-100',
+          iconColor: 'text-blue-600'
+        },
+        description: 'Customer support couldn\'t resolve a complex technical issue. Customer is frustrated and you need to dig deeper into their setup to find a solution.',
+        duration: '15-20 min practice',
+        priority: {
+          text: 'High Priority',
+          bg: 'bg-red-100',
+          textColor: 'text-red-800'
+        },
+        difficulty: 'challenging',
+        skills: ['empathy', 'conflict resolution']
+      },
+      {
+        id: 2,
+        title: 'Edge Case Investigation',
+        person: {
+          name: 'Marcus Johnson',
+          role: 'CTO, InnovateStartup',
+          avatar: 'https://avatar.iran.liara.run/public/boy',
+          icon: 'ri-bug-line',
+          iconBg: 'bg-purple-100',
+          iconColor: 'text-purple-600'
+        },
+        description: 'Customer reports strange behavior that only happens in their specific configuration. You need to understand their unique setup and find the root cause.',
+        duration: '15-20 min practice',
+        priority: {
+          text: 'Technical',
+          bg: 'bg-yellow-100',
+          textColor: 'text-yellow-800'
+        },
+        difficulty: 'standard',
+        skills: ['technical translation', 'problem identification']
       }
     ]
   }

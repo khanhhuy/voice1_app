@@ -12,6 +12,7 @@
 import { useProvideAccount } from '@/modules/account/useAccount'
 import './styles/index.css'
 import 'remixicon/fonts/remixicon.css'
+import 'floating-vue/dist/style.css'
 import { onMounted } from 'vue'
 import AppSidebar from '@/modules/sidebar/AppSidebar.vue'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'

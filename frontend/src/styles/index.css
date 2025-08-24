@@ -129,3 +129,7 @@
 html, body {
   @apply w-full h-full;
 }
+
+.v-popper--theme-tooltip .v-popper__inner {
+  @apply text-xs p-0 max-w-[250px];
+}
