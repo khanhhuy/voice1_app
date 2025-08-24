@@ -39,8 +39,7 @@
             class="scenario-card bg-background-secondary flex flex-col rounded-lg p-4 border border-border"
           >
             <div
-              class="flex-1"
-              :class="{ 'flex justify-between items-start mb-4': scenario.priority, 'mb-4': !scenario.priority }"
+              class="flex-1 mb-4"
             >
               <div>
                 <div class="flex items-center justify-between">
@@ -96,12 +95,6 @@
                   </div>
                 </div>
               </div>
-              <!-- <span 
-                v-if="scenario.priority" 
-                :class="['text-xs px-2 py-1 rounded-full', scenario.priority.bg, scenario.priority.textColor]"
-              >
-                {{ scenario.priority.text }}
-              </span> -->
             </div>
             <div class="flex justify-between items-center">
               <span class="text-xs text-gray-500"><i class="ri-time-line mr-1" /> {{ scenario.duration }}</span>
@@ -157,7 +150,6 @@ const categories = ref([
         },
         description: 'New customer completed onboarding 2 weeks ago. You want to understand their initial experience and current workflow.',
         duration: '10-15 min practice',
-        priority: null,
         difficulty: 'gentle',
         skills: ['active listening', 'follow-up questions']
       },
@@ -174,7 +166,6 @@ const categories = ref([
         },
         description: 'Customer signed up 1 month ago but has low usage. You need to identify barriers and friction points.',
         duration: '15-20 min practice',
-        priority: null,
         difficulty: 'gentle',
         skills: ['problem identification', 'empathy']
       },
@@ -191,7 +182,6 @@ const categories = ref([
         },
         description: 'Customer is using your product in an unexpected way. Learn about their creative workflow and potential new features.',
         duration: '15-20 min practice',
-        priority: null,
         difficulty: 'standard',
         skills: ['pain point discovery', 'use case analysis']
       }
@@ -217,11 +207,6 @@ const categories = ref([
         },
         description: 'Customer has been testing your new analytics dashboard for 3 weeks. Gather detailed feedback on usability and missing functionality.',
         duration: '15-20 min practice',
-        priority: {
-          text: 'Feedback',
-          bg: 'bg-blue-100',
-          textColor: 'text-blue-800'
-        },
         difficulty: 'gentle',
         skills: ['active listening', 'follow-up questions']
       },
@@ -238,11 +223,6 @@ const categories = ref([
         },
         description: 'Convince a key customer to join your early access program for upcoming AI features. They\'re interested but concerned about stability.',
         duration: '15-20 min practice',
-        priority: {
-          text: 'Recruitment',
-          bg: 'bg-green-100',
-          textColor: 'text-green-800'
-        },
         difficulty: 'standard',
         skills: ['value proposition', 'scope definition']
       }
@@ -268,11 +248,6 @@ const categories = ref([
         },
         description: 'Customer support couldn\'t resolve a complex technical issue. Customer is frustrated and you need to dig deeper into their setup to find a solution.',
         duration: '15-20 min practice',
-        priority: {
-          text: 'High Priority',
-          bg: 'bg-red-100',
-          textColor: 'text-red-800'
-        },
         difficulty: 'challenging',
         skills: ['empathy', 'conflict resolution']
       },
@@ -289,11 +264,6 @@ const categories = ref([
         },
         description: 'Customer reports strange behavior that only happens in their specific configuration. You need to understand their unique setup and find the root cause.',
         duration: '15-20 min practice',
-        priority: {
-          text: 'Technical',
-          bg: 'bg-yellow-100',
-          textColor: 'text-yellow-800'
-        },
         difficulty: 'standard',
         skills: ['technical translation', 'problem identification']
       }
