@@ -36,7 +36,7 @@
           <div 
             v-for="scenario in category.scenarios" 
             :key="scenario.id" 
-            class="scenario-card bg-background-secondary flex flex-col rounded-lg p-4 border border-border"
+            class="scenario-card bg-background-secondary flex flex-col rounded-lg p-4 border border-border relative"
           >
             <div
               class="flex-1 mb-4"
@@ -50,7 +50,7 @@
                     v-tooltip="{
                       content: difficultyTooltip(scenario.difficulty),
                     }"
-                    class="flex items-center gap-1 hover:text-gray-600 cursor-pointer text-gray-400"
+                    class="flex items-center gap-1 cursor-default ease-linear text-gray-400"
                   >
                     <div
                       class="rounded-full w-2 h-2"
@@ -68,15 +68,6 @@
                 <p class="text-gray-600 text-sm mt-2 h-20">
                   {{ scenario.description }}
                 </p>
-                <!-- <div class="text-sm text-gray-600 mt-2">
-                  <div>
-                    • Skills: active listening, follow-up questions
-                  </div>
-                  <div>
-                    • 
-                    <span class="text-xs text-gray-500"><i class="ri-time-line mr-1" /> {{ scenario.duration }}</span>
-                  </div>
-                </div> -->
                 <div class="flex items-center mt-2">
                   <div>
                     <img

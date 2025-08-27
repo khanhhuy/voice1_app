@@ -1,7 +1,7 @@
 <template>
   <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-lg">
     <h1 class="text-2xl font-bold mb-6">
-      Voice Activity Detection Recorder
+      Mae
     </h1>
     
     <div class="mb-6">
@@ -13,7 +13,7 @@
           class="bg-teal-600 hover:bg-teal-700"
           @click="startRecording"
         >
-          {{ isLoading ? 'Loading...' : 'Start Recording' }}
+          {{ isLoading ? 'Loading...' : 'Start' }}
         </Button>
 
         <Button
@@ -109,7 +109,7 @@ interface Recording {
 }
 
 // Configuration
-const SILENCE_TIMEOUT_MS = 800 // Time to wait after silence before auto-sending
+const SILENCE_TIMEOUT_MS = 200 // Time to wait after silence before auto-sending
 const SILENCE_UPDATE_INTERVAL = 50 // How often to update the countdown display
 
 const isRecording = ref(false)
@@ -248,10 +248,11 @@ async function startRecording () {
     
     micVad = await MicVAD.new({
       model: 'v5',
-      frameSamples: 512, // 512 / 16Khz = 32ms/frame
-      redemptionFrames: 12, // 12 * 32ms = 384ms
+      // frameSamples: 512, // 512 / 16Khz = 32ms/frame
+      redemptionFrames: 50, // 30 * 32ms = 960ms
       minSpeechFrames: 3, // default is 3 but it's false positive quite a lot
       onSpeechRealStart: () => {
+        console.log('onSpeechRealStart')
         // User started speaking
         isSpeaking.value = true
         hasSentForCurrentSpeech.value = false // Reset for new speech session
@@ -261,12 +262,14 @@ async function startRecording () {
         stopOngoingAudio()
       },
       onVADMisfire () {
+        console.log('onVADMisfire')
         isSpeaking.value = false
         hasSentForCurrentSpeech.value = false
         allowPlayback(true)
         clearSilenceTimers()
       },
       onSpeechEnd: async (audio: Float32Array) => {
+        console.log('onSpeechEnd')
         // user interrupts while AI is speaking
         allowPlayback(true)
 

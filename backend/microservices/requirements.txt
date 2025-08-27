@@ -1,0 +1,7 @@
+# Requirements for Silero VAD WebSocket Server
+silero-vad==5.1
+websockets==12.0
+numpy==1.24.3
+torch>=2.0.0
+torchaudio>=2.0.0
+onnxruntime==1.18.0

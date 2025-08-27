@@ -9,7 +9,7 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     if (!window.voice1?.token) {
-      window.location.href = '/login'
+      // window.location.href = '/login'
       return Promise.reject(new Error('No authentication token'))
     }
     

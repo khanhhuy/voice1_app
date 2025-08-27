@@ -43,7 +43,7 @@ const [useProvideAccount, useAccount] = createInjectionState(() => {
       return true
     } catch (error) {
       console.error('Failed to fetch user data:', error)
-      handleLogout()
+      // handleLogout()
       return false
     } finally {
       isLoggingIn.value = false
@@ -51,6 +51,7 @@ const [useProvideAccount, useAccount] = createInjectionState(() => {
   }
 
   function handleLogout () {
+    console.log('handleLogout')
     // Remove token from window object
     if (window.voice1) {
       delete window.voice1.token

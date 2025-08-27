@@ -1,7 +1,7 @@
 import { Groq } from 'groq-sdk';
 import { compact, flatten } from 'lodash';
 import { IAssistantTurn, IConversation, IUserTurn } from '@/types';
-import { PROMPT } from './prompt';
+import { PROMPT as MAE_PROMPT } from './mae_prompt';
 import { GEMINI_PROMPT_1 } from './gemini_prompt1';
 
 const groq = new Groq();
@@ -62,7 +62,7 @@ async function llmCompletion(messages: IMessage[]): Promise<string> {
   const msg: IMessage[] = [
     {
       role: 'system',
-      content: GEMINI_PROMPT_1,
+      content: MAE_PROMPT,
     },
     ...messages
   ]

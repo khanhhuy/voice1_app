@@ -1,6 +1,6 @@
 # Product Overview
 Voice1 is a product to let people practice with different AI personas to improve their professional communication skills.
-Target audience are sale team, product team, customer success team, etc... that need to communicate with customers on a regular basis.
+Target audience are product team... that need to communicate with customers on a regular basis.
 
 The product main concept are:
 

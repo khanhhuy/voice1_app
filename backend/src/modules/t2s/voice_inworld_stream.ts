@@ -21,7 +21,7 @@ async function streamSpeech (
     ...options,
     body: JSON.stringify({
       text,
-      voiceId: "Alex",
+      voiceId: "Ashley",
       modelId: "inworld-tts-1",
       audio_config: audioConfig,
     }),

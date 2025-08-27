@@ -13,7 +13,9 @@ export class AudioProcessor {
   private replyHandler: ReplyHandler | null = null
 
   constructor (sessionId: string, options: Options = {}) {
-    this.url = options.url || 'ws://localhost:3006/talk'
+    const token = window.localStorage.getItem('voice1_token')
+
+    this.url = options.url || `ws://localhost:3006/talk?token=${token}`
     this.currentSessionId = sessionId
     this.replyHandler = new ReplyHandler()
   }

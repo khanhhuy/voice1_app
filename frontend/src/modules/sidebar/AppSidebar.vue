@@ -112,7 +112,7 @@ function isActive (path: string) {
 const practiceItems = [
   {
     title: 'Product Team Scenarios',
-    url: '/practice/product',
+    url: '/practice/start',
     icon: MicVocal,
   },
   {

@@ -3,10 +3,15 @@ import Login from '@/modules/account/Login.vue'
 import Account from '@/modules/account/Account.vue'
 import ProductScenarios from '@/modules/pratice/ProductScenarios.vue'
 import CustomerSupportScenarios from '@/modules/pratice/CustomerSupportScenarios.vue'
+import PracticeCall from '@/modules/pratice/PracticeCall.vue'
+import Start from '@/modules/pratice/Start.vue'
+import VadRecorder from '@/modules/talk/VadRecorder.vue'
 
 const routes = [
   { path: '/login', component: Login },
   { path: '/account', component: Account },
+  { path: '/practice/start', component: Start },
+  { path: '/practice/mae', component: VadRecorder },
   { path: '/practice/product', component: ProductScenarios },
   { path: '/practice/customer-support', component: CustomerSupportScenarios },
 ]
