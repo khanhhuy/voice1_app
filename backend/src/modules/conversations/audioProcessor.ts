@@ -16,7 +16,7 @@ import { ConvoLogger } from "@/services/convoLogger";
  */
 
 interface IAudioMessage {
-  type: 'start' | 'end'
+  type: 'speech_start' | 'speech_end'
   ts: number
 }
 
@@ -66,13 +66,13 @@ export class AudioProcessor {
   }
 
   handleMessage(message: IAudioMessage) {
-    if (message.type === 'start') {
+    if (message.type === 'speech_start') {
       this.processedAudio = []
       this.onTranscription({
         type: 'start-speech',
       })
       this.logger.log({type: 'vad', sessionId: this.sessionId, ts: Date.now(), status: 'start-speech',})
-    } else if (message.type === 'end') {
+    } else if (message.type === 'speech_end') {
       // do not await this
       this.startTranscription(Buffer.concat(this.processedAudio))
       this.processedAudio = []

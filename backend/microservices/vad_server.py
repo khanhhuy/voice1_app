@@ -12,6 +12,7 @@ import torch
 from silero_vad import load_silero_vad, VADIterator
 from datetime import datetime
 import logging
+import time
 
 # Configure logging to stdout
 import sys
@@ -52,7 +53,7 @@ class VADHandler:
         self.use_iterator = use_iterator
         
         if use_iterator:
-            self.vad_iterator = VADIterator(model, sampling_rate=SAMPLING_RATE)
+            self.vad_iterator = VADIterator(model, sampling_rate=SAMPLING_RATE, time_resolution=2)
         
         # Buffer for incomplete chunks
         self.audio_buffer = np.array([], dtype=np.int16)
@@ -93,8 +94,7 @@ class VADHandler:
                         self.speech_start_time = speech_dict['start']
                         results.append({
                             'event': 'speech_start',
-                            'start_seconds': speech_dict['start'],
-                            'timestamp': datetime.utcnow().isoformat()
+                            'ts': time.time() * 1000
                         })
                     
                     elif 'end' in speech_dict:  # Note: elif, not if - it's one or the other
@@ -102,8 +102,7 @@ class VADHandler:
                         self.speech_end_time = speech_dict['end']
                         results.append({
                             'event': 'speech_end',
-                            'end_seconds': speech_dict['end'],
-                            'timestamp': datetime.utcnow().isoformat()
+                            'ts': time.time() * 1000
                         })
             else:
                 # Just get speech probability
