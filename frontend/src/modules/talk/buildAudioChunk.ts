@@ -1,6 +1,5 @@
-async function buildAudioChunk (sessionId: string, sequence: number, audioData: Blob): Promise<Uint8Array> {
-  const arrayBuffer = await audioData.arrayBuffer()
-  const payloadLength = arrayBuffer.byteLength
+async function buildAudioChunk (sessionId: string, sequence: number, payload: ArrayBuffer): Promise<Uint8Array> {
+  const payloadLength = payload.byteLength
 
   // Create 12-byte header: 4 bytes sessionId + 4 bytes sequence + 4 bytes payload length
   const header = new ArrayBuffer(12)
@@ -12,7 +11,7 @@ async function buildAudioChunk (sessionId: string, sequence: number, audioData: 
   // Combine header and payload
   const fullMessage = new Uint8Array(12 + payloadLength)
   fullMessage.set(new Uint8Array(header), 0)
-  fullMessage.set(new Uint8Array(arrayBuffer), 12)
+  fullMessage.set(new Uint8Array(payload), 12)
   
   return fullMessage
 }

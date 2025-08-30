@@ -13,8 +13,14 @@ from silero_vad import load_silero_vad, VADIterator
 from datetime import datetime
 import logging
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# Configure logging to stdout
+import sys
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
 logger = logging.getLogger(__name__)
 
 # Constants
@@ -23,6 +29,11 @@ CHUNK_SIZE = 512       # Must be exactly 512 samples for 16kHz (32ms)
 
 # Set torch threads for efficiency
 torch.set_num_threads(1)
+
+# Load model once at startup (shared across all connections)
+print("Loading Silero VAD model...")
+VAD_MODEL = load_silero_vad(onnx=True)
+print("Model loaded successfully")
 
 def int2float(sound):
     """Convert int16 audio to float32"""
@@ -132,17 +143,26 @@ class VADHandler:
 
 async def handle_connection(websocket, path):
     """Handle a WebSocket connection"""
-    logger.info(f"New connection from {websocket.remote_address}")
+    logger.info(f"New connection from {websocket.remote_address} to path {path}")
     
-    # Load model (shared across connections)
-    model = load_silero_vad(onnx=True)  # Use ONNX for better performance
+    # Send immediate connection acknowledgment
+    try:
+        await websocket.send(json.dumps({
+            'type': 'connection_ready',
+            'timestamp': datetime.utcnow().isoformat()
+        }))
+        logger.info(f"Connection established successfully with {websocket.remote_address}")
+    except Exception as e:
+        logger.error(f"Failed to send connection acknowledgment: {e}")
+        return
     
-    # Create handler for this connection
-    handler = VADHandler(model, use_iterator=True)
+    # Create handler for this connection using the pre-loaded model
+    handler = VADHandler(VAD_MODEL, use_iterator=True)
     
     try:
         async for message in websocket:
             if isinstance(message, bytes):
+                logger.info("Received message bytes")
                 # Process audio chunk
                 results = handler.process_audio(message)
                 
@@ -157,6 +177,7 @@ async def handle_connection(websocket, path):
             elif isinstance(message, str):
                 # Handle commands
                 try:
+                    logger.info(f"Received message: {message}")
                     command = json.loads(message)
                     
                     if command.get('type') == 'reset':
@@ -183,14 +204,18 @@ async def handle_connection(websocket, path):
                         'timestamp': datetime.utcnow().isoformat()
                     }))
                     
-    except websockets.exceptions.ConnectionClosed:
-        logger.info(f"Connection closed")
+    except websockets.exceptions.ConnectionClosed as e:
+        logger.info(f"Connection closed: {e}")
     except Exception as e:
-        logger.error(f"Error: {e}")
-        await websocket.send(json.dumps({
-            'error': str(e),
-            'timestamp': datetime.utcnow().isoformat()
-        }))
+        logger.error(f"Error in connection handler: {e}")
+        try:
+            if websocket.open:
+                await websocket.send(json.dumps({
+                    'error': str(e),
+                    'timestamp': datetime.utcnow().isoformat()
+                }))
+        except:
+            logger.error(f"Failed to send error message to client")
     finally:
         handler.reset()
 

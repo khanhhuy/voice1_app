@@ -28,10 +28,6 @@ async function dispatchBinaryChunk(data: Buffer) {
     throw new Error('Conversation manager not found')
   }
 
-  if (!convoManager.isStarted) {
-    convoManager.start()
-  }
-
   convoManager.receiveAudio(audioBuffer, sequence)
 }
 

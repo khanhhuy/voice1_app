@@ -55,3 +55,4 @@ data/
 ecosystem.config.cjs
 
 .crush
+.logs

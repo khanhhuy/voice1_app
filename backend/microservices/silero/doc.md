@@ -32,3 +32,33 @@ Imagine I have this stream of chunks, 0 means non speech, 1 means speech:
 [0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0]
 
 What is the result if I run this chunks through the `vad_server.py`?
+
+---
+
+Context: NodeJs send audio chunk to vad_server.py, the chunk has sampling rate 16000.
+Each chunk contains 100ms audio data.
+
+According to Silero doc, it can only accept 512 chunks per call, chunk size is 32 ms, and each second of the audio contains 31.25 chunks.
+
+The microservices/utils_vad.py is copied from the silero vad repo, it contains helper classes and functions that will be used in microservices/vad_server.py
+
+The call flow is: src/modules/conversations/audioProcessor.ts -> vad_server.py -> utils_vad.py
+
+In `vad_server.py`, it looks like the chunk size is incorrect, it needs to be 512 chunks before calling `self.vad_iterator`
+```
+ self.vad_iterator(chunk_float32, return_seconds=True)
+```
+
+Analyze the chunk processing login in `vad_server.py` to see how to correctly process the chunk.
+
+
+
+
+
+
+
+
+
+
+
+

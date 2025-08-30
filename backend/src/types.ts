@@ -31,11 +31,19 @@ interface IAudioChunk {
   processingId?: string // Track which async process is handling this
 }
 
+interface ISpeechChunk {
+  transcriptions?: ITranscription[]
+  text?: string
+  status: 'unprocessed' | 'transcribing' | 'transcribed' | 'failed'
+  lastSeen?: number
+  retryCount: number
+}
+
 interface IUserTurn {
   id: string
   type: 'userTurn'
   participantId: string
-  chunks: IAudioChunk[]
+  chunks: ISpeechChunk[]
   cachedText?: string
   status: 'new' | 'speaking' | 'maybe-speaking' | 'wait-replying' | 'completed'
   allTranscribed: boolean
@@ -91,6 +99,22 @@ interface IStartSpeakingSignal {
 
 type AudioBufferItem = Buffer | IStopSignal | IEndConvoSignal | IStartSpeakingSignal
 
+interface IStartSpeechSignal {
+  type: 'start-speech'
+}
+
+interface IEndSpeechSignal {
+  type: 'end-speech'
+}
+
+interface ITranscriptionEvent {
+  type: 'transcription'
+  status: 'new' | 'transcribed' | 'ignored'
+  transcriptions: ITranscription[]
+}
+
+type SpeechEvent = ITranscriptionEvent | IStartSpeechSignal | IEndSpeechSignal
+
 export type {
   IUser, 
   IConversation, 
@@ -103,4 +127,9 @@ export type {
   IStartSpeakingSignal,
   SignalType,
   AudioBufferItem,
+  IStartSpeechSignal,
+  IEndSpeechSignal,
+  ITranscriptionEvent,
+  SpeechEvent,
+  ISpeechChunk,
 }

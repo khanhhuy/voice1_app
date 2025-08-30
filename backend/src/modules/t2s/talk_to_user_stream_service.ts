@@ -1,6 +1,5 @@
 import { requestContext } from "@/services/requestContext"
 import { WebSocket } from "ws"
-import { getAudioStream } from "@/modules/conversations/storage"
 import { ConversationState } from "../conversations/conversation_state"
 import { saveToDebug } from "@/services/utils"
 import type { IAssistantTurn } from "@/types"

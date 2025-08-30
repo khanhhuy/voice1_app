@@ -296,8 +296,8 @@ async function startRecording () {
         
         recordings.value.push(recording)
         
-        const audioChunk = await buildAudioChunk(currentSessionId.value!, sequence.value, audioBlob)
-        processor!.sendRaw(audioChunk)
+        // const audioChunk = await buildAudioChunk(currentSessionId.value!, sequence.value, audioBlob)
+        // processor!.sendRaw(audioChunk)
 
         startSilenceTimer()
       },

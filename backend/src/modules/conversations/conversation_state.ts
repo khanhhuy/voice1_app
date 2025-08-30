@@ -1,4 +1,4 @@
-import { IAudioChunk, IAssistantTurn, IConversation, IStopSignal, ITranscription, IUserTurn } from "@/types"
+import { IAudioChunk, IAssistantTurn, IConversation, IStopSignal, ITranscription, IUserTurn, ISpeechChunk } from "@/types"
 
 const ASSISTANT_ID = 'jane'
 
@@ -35,20 +35,18 @@ class ConversationState {
     return turn
   }
 
-  addChunkToUserTurn(turnId: string, audioBuffer: Buffer, sequence: number): IAudioChunk {
+  addChunkToUserTurn(turnId: string, transcriptions: ITranscription[]): void {
     const turn = this.conversation.userTurns.find(t => t.id === turnId)
     if (!turn) throw new Error('Turn not found')
     
-    const chunk: IAudioChunk = {
-      sequence,
-      audioBuffer,
-      timestamp: Date.now(),
+    const chunk: ISpeechChunk = {
+      transcriptions,
+      text: '',
       status: 'unprocessed',
       retryCount: 0
     }
     turn.chunks.push(chunk)
     turn.allTranscribed = false
-    return chunk
   }
 
   updateUserTurnStatus(turnId: string, status: IUserTurn['status']): void {
