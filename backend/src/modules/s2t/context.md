@@ -62,3 +62,58 @@ Quality Thresholds and Regular Monitoring
 We recommend setting acceptable ranges for each metadata value we reviewed above and flagging segments that fall outside these ranges to be able to identify and adjust preprocessing or chunking strategies for flagged sections.
 
 By understanding and monitoring these metadata values, you can significantly improve your transcription quality and quickly identify potential issues in your audio processing pipeline.
+
+
+## Improve transcription quality
+
+The src/modules/s2t/transcriptionService.ts receives raw audio buffer and sends it to whisperGroq
+(src/modules/s2t/whisper_groq.ts) to transcribe the audio
+
+The problem is sometime the audio buffer is too short, and since whisperGroq calls a stateles API, the result is not accurate.
+E.g. " And my customer service team is", "finding". The user somehow pauses before saying "finding", so the audio buffer for
+"finding" is too short.
+
+The idea is is to send a long enough buffer to whisper, so buffers = past_buffers + current_buffer
+Example:
+- Buffer 1: " And my customer service team is"
+  => Transcription: " And my customer service team is"
+- Buffer 2: " And my customer service team is finding"
+  => Transcription: " And my customer service team is finding"
+- Buffer 3: " And my customer service team is finding the right product to experiment"
+  => Transcription: " And my customer service team is finding the right product to experiment"
+- Buffer 4: "finding the right product to experiment with my clients"
+
+The problems with this approach are:
+1. Whisper does not return the start and end time for each word in the transcription
+This means for a result, we cannot tell which word belongs to which buffer
+
+2. The past buffer when concatenated with the current buffer might give different transcription than the past buffer alone
+Combine with 1., we cannot use the past transcription result and do string comparison to remove the past buffer from the result
+
+The 1st strategy is to always discard the past buffer if we receive a better result from the current run
+But the result of the past buffer is already sent to next phase, so we cannot discard it. We can wait, but due to 3., we never know if we have the "next" buffer or not
+
+- Use a fixed delay can be a solution, finding the correct delay might require some experimentation
+
+This is complex because the previous 1 buffer might be too short, so we might need to have X previous buffers, which complicates the whole process
+
+The 2nd strategy is try to overcome 2. by using fuzzy string matching to remove the past buffer from the result
+
+
+### Delay strategy
+The src/modules/s2t/transcriptionService.ts receives raw audio buffer and sends it to whisperGroq
+(src/modules/s2t/whisper_groq.ts) to transcribe the audio
+
+The problem is sometime the audio buffer is too short, and since whisperGroq calls a stateles API, the result is not accurate.
+E.g. " And my customer service team is", "finding". The user somehow pauses before saying "finding", so the audio buffer for
+"finding" is too short.
+
+The idea is to use past X buffers to provide more context for the current buffer.
+`combined_buffers = past_buffers + current_buffer`
+
+The problem with this is the combined transcription might be different from the past transcription, so we need to call
+`dedupLLM(pastTranscription, combinedTranscription)` to get the new transcription.
+
+Modify the transcriptionService to use this new strategy.
+- add a new parameter `contextSizeMs` to determine the number of past buffers to use
+- store the pairs (buffer, transcription) so that we can build the context and dedup

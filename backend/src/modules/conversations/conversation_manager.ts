@@ -90,6 +90,7 @@ class ConversationManager {
       textToSpeech: ITextToSpeechService,
     }
   ) {
+    this.speechEventBuffer = []
     this.audioBuffer = new AudioBuffer()
     this.conversationState = conversationState
     this.llm = services.llm
@@ -105,7 +106,7 @@ class ConversationManager {
 
     // this.intervalId = setInterval(() => this.loop(), this.loopInterval)
     await this.audioProcessor.init()
-    this.logger.start()
+    // this.logger.start()
   }
   
   stop(): void {
@@ -124,9 +125,6 @@ class ConversationManager {
 
     // 1. Process audio buffer
     this.processAudioBuffer()
-    
-    // 2. Process user turn transcriptions
-    this.processUserTurnTranscriptions()
     
     // 3. Process assistant turn
     this.processAssistantTurn()
@@ -190,64 +188,6 @@ class ConversationManager {
     // this.audioBuffer.clear()
   }
 
-  private processTranscriptionRequest(): void {
-    if (this.speechEventBuffer.length === 0) {
-      return
-    }
-
-    const isDoneSpeaking = SpeechEventHelper.isDoneSpeaking(this.speechEventBuffer)
-    const transcriptionEvents = SpeechEventHelper.extractTranscriptionEvents(this.speechEventBuffer)
-
-    let currentUserTurn = this.conversationState.getCurrentUserTurn()
-
-    if (!currentUserTurn || currentUserTurn.status === 'completed') {
-      currentUserTurn = this.conversationState.createUserTurn()
-    }
-
-    transcriptionEvents.forEach(event => {
-      this.conversationState.addChunkToUserTurn(currentUserTurn.id, event.transcriptions)
-    })
-
-    // Update turn status if user stopped speaking
-    if (isDoneSpeaking && ['new', 'speaking'].includes(currentUserTurn.status)) {
-      this.conversationState.updateUserTurnStatus(currentUserTurn.id, 'wait-replying')
-    }
-
-    if (!isDoneSpeaking && SpeechEventHelper.containStartSpeechSignal(this.speechEventBuffer)) {
-      this.conversationState.updateUserTurnStatus(currentUserTurn.id, 'speaking')
-    }
-
-    this.speechEventBuffer = []
-  }
-
-  private processUserTurnTranscriptions(): void {
-    const lastUserTurn = this.conversationState.getLastUserTurn()
-    if (!lastUserTurn) return
-    
-    // Get chunks that need transcription
-    const unprocessedChunks = this.conversationState.getUnprocessedChunks(lastUserTurn.id)
-    
-    // Start transcription for unprocessed chunks
-    unprocessedChunks.forEach(chunk => {
-      if (chunk.status === 'unprocessed' || (chunk.status === 'failed' && chunk.retryCount < 2)) {
-        this.initTranscription(lastUserTurn.id, chunk.sequence, chunk.audioBuffer)
-      }
-    })
-
-    if (['new', 'wait-replying'].includes(lastUserTurn.status)) {
-      // if there is one unseen chunk is valid (real speak), update the turn to speaking
-      lastUserTurn.chunks.forEach(c => {
-        const textt = (c.text || '').trim()
-        if (c.status === 'transcribed' &&  textt !== '' && !c.lastSeen) {
-          console.log('update user turn to speaking', lastUserTurn.id)
-          this.conversationState.updateUserTurnStatus(lastUserTurn.id, 'speaking')
-        }
-      })
-    }
-
-    this.conversationState.checkAllTranscribed(lastUserTurn.id)
-  }
-  
   private processAssistantTurn(): void {
     const lastUserTurn = this.conversationState.getLastUserTurn()
     const lastAssistantTurn = this.conversationState.getLastAssistantTurn()
@@ -313,13 +253,6 @@ class ConversationManager {
         }
         break
     }
-  }
-  
-  // Async service initiators
-  private initTranscription(turnId: string, sequence: number, audioBuffer: Buffer): void {
-    const processingId = `transcribe-${turnId}-${sequence}-${Date.now()}`
-    this.conversationState.updateChunkStatus(turnId, sequence, 'transcribing', processingId)
-    // this.transcriber.transcribe(this.conversationState, turnId, sequence, audioBuffer, processingId)
   }
   
   private initLLMGeneration(assistantTurn: IAssistantTurn): void {

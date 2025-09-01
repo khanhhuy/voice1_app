@@ -32,7 +32,7 @@ interface IAudioChunk {
 }
 
 interface ISpeechChunk {
-  transcriptions?: ITranscription[]
+  transcriptions?: ITranscriptionEvent[]
   text?: string
   status: 'unprocessed' | 'transcribing' | 'transcribed' | 'failed'
   lastSeen?: number
@@ -110,7 +110,7 @@ interface IEndSpeechSignal {
 interface ITranscriptionEvent {
   type: 'transcription'
   status: 'new' | 'transcribed' | 'ignored'
-  transcriptions: ITranscription[]
+  transcription: string
 }
 
 type SpeechEvent = ITranscriptionEvent | IStartSpeechSignal | IEndSpeechSignal

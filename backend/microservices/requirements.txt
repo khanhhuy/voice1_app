@@ -5,3 +5,8 @@ numpy==1.24.3
 torch>=2.0.0
 torchaudio>=2.0.0
 onnxruntime==1.18.0
+
+# for notebook
+soundfile==0.12.1
+pyaudio==0.2.11
+matplotlib>=3.6.0

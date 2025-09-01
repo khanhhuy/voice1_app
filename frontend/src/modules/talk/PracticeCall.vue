@@ -1,8 +1,8 @@
 <template>
   <div class="flex flex-col gap-4  h-full p-8">
     <div class="flex flex-row gap-4">
-      <Button @click="startSession" class="cursor-pointer" :disabled="status === 'Recording'">Start Session</Button>
-      <Button @click="stopSession" variant="outline" class="cursor-pointer" :disabled="status !== 'Recording'">Stop Session</Button>
+      <Button @click="startSession" class="cursor-pointer" :disabled="status === 'recording'">Start Session</Button>
+      <Button @click="stopSession" variant="outline" class="cursor-pointer" :disabled="status !== 'recording'">Stop Session</Button>
     </div>
     <div>
         <span class="text-sm text-gray-500">Status: {{ status }}</span>
@@ -18,7 +18,7 @@ import { AudioProcessor } from './processor'
 import { Button } from '@/components/ui/button'
 
 const currentSessionId = ref<string | null>(null)
-const status = ref<string>('Not Started')
+const status = ref<'not_started' | 'recording' | 'stopped'>('not_started')
 
 let processor: AudioProcessor | null = null
 let microphone: MicrophoneService | null = null
@@ -41,18 +41,20 @@ async function startSession () {
   microphone = new MicrophoneService(currentSessionId.value, 0)
   await microphone.startRecording(processor)
 
-  status.value = 'Recording...'
+  status.value = 'recording'
 }
 
 function stopSession () {
   if (microphone) {
     microphone.stopRecording()
+    // microphone.playRecording()
   }
   if (processor) {
     processor.disconnect()
   }
 
-  status.value = 'Stopped'
+
+  status.value = 'stopped'
 }
 
 

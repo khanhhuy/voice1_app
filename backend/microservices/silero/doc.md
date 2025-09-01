@@ -55,10 +55,81 @@ Analyze the chunk processing login in `vad_server.py` to see how to correctly pr
 
 
 
+# Calculation
+
+rate=16000
+
+frames_per_buffer= rate / 10 = 1600
+
+frames_to_record = 50
+
+num_samples = 512
+
+each frame, wait stream.read
+
+audio_chunk = stream.read(num_samples)
+
+chunk size is 32 ms, and each second of the audio contains 31.25 chunks
+currently only chunks of size 512 are used for 16 kHz and 256 for 8 kHz
+e.g. 512 / 16000 = 256 / 8000 = 0.032 s = 32.0 ms
 
 
+1 second = 16000 samples
+1 second = 31.25 chunks
+1 second = 
+
+1 chunk = 0.032s
+1 chunk = 512 samples
 
 
+Frequency: 16000 samples/s
+1 sample = 1 / 16000 sec = 0.0625ms
+512 samples = 32ms
 
 
+How many bytes per sample?
+- Bit depth: 16
+
+16,000 samples/second × 2 bytes/sample = 32,000 bytes/second = 32 KB/s
+
+Browser captures every 100ms, array.byteLength is 9600 bytes
+So:
+- 100ms = 9600 bytes
+- 
+
+```
+➜  ~/Downloads afinfo recording-2008669228-1756626851540.wav
+File:           recording-2008669228-1756626851540.wav
+File type ID:   WAVE
+Num Tracks:     1
+----
+Data format:     1 ch,  48000 Hz, Int16
+                no channel layout.
+estimated duration: 9.700000 sec
+audio bytes: 931200
+audio packets: 465600
+bit rate: 768000 bits per second
+packet size upper bound: 2
+maximum packet size: 2
+audio data file offset: 44
+optimized
+source bit depth: I16
+----
+```
+
+Your WAV file properties:
+
+Sample rate: 48,000 Hz (48 kHz)
+Bit depth: Int16 = 16-bit integer
+Bytes per sample: 2 bytes (since 16 bits = 2 bytes)
+Channels: 1 (mono)
+
+Key calculations:
+
+1 sample = 1/48,000 second = ~0.0208 ms
+Data rate: 48,000 samples/sec × 2 bytes/sample = 96,000 bytes/sec = 96 KB/s
+
+Verification:
+Your file duration (9.7 seconds) × 96,000 bytes/sec = 931,200 bytes, which matches the "audio bytes" shown in the output. ✅
+Note: This file is actually 48 kHz, not the 16 kHz you mentioned in your original question. Many web browsers and MediaRecorder implementations default to 48 kHz sample rate rather than 16 kHz.
 

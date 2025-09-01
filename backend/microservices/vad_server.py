@@ -12,7 +12,6 @@ import torch
 from silero_vad import load_silero_vad, VADIterator
 from datetime import datetime
 import logging
-import time
 
 # Configure logging to stdout
 import sys
@@ -45,15 +44,43 @@ def int2float(sound):
     sound = sound.squeeze()
     return sound
 
+def print_chunk_analysis(chunk_float32, chunk_idx=None):
+    """Print detailed analysis of audio chunk for easy difference detection"""
+    prefix = f"[Chunk {chunk_idx}]" if chunk_idx is not None else "[Chunk]"
+    
+    # Basic stats
+    # print(f"{prefix} Shape: {chunk_float32.shape}, Length: {len(chunk_float32)}")
+    # print(f"{prefix} Min: {chunk_float32.min():.6f}, Max: {chunk_float32.max():.6f}")
+    print(f"{prefix} Mean: {chunk_float32.mean():.6f}, Std: {chunk_float32.std():.6f}")
+    # print(f"{prefix} RMS: {np.sqrt(np.mean(chunk_float32**2)):.6f}")
+    
+    # Energy levels
+    energy = np.sum(chunk_float32**2)
+    # print(f"{prefix} Energy: {energy:.6f}")
+    
+    # First/last few samples for pattern detection
+    # print(f"{prefix} First 8: {chunk_float32[:8].tolist()}")
+    # print(f"{prefix} Last 8:  {chunk_float32[-8:].tolist()}")
+    
+    # Zero crossing rate (indicates voice activity)
+    zero_crossings = np.sum(np.diff(np.sign(chunk_float32)) != 0)
+    print(f"{prefix} Zero crossings: {zero_crossings}")
+    
+    # Simple silence detection
+    silence_threshold = 0.001
+    is_silent = np.max(np.abs(chunk_float32)) < silence_threshold
+    print(f"{prefix} Silent (< {silence_threshold}): {is_silent}")
+    
+    print(f"{prefix} " + "="*60)
 class VADHandler:
     """Handles VAD for a single WebSocket connection"""
     
     def __init__(self, model, use_iterator=True):
         self.model = model
-        self.use_iterator = use_iterator
+        self.use_iterator = True
         
         if use_iterator:
-            self.vad_iterator = VADIterator(model, sampling_rate=SAMPLING_RATE, time_resolution=2)
+            self.vad_iterator = VADIterator(model, sampling_rate=SAMPLING_RATE)
         
         # Buffer for incomplete chunks
         self.audio_buffer = np.array([], dtype=np.int16)
@@ -62,9 +89,11 @@ class VADHandler:
         self.is_speaking = False
         self.speech_start_time = None
         self.speech_end_time = None
+        self.chunk_counter = 0
     
     def process_audio(self, audio_bytes):
         """Process audio bytes and return detection results"""
+
         # Convert bytes to int16 numpy array
         audio_int16 = np.frombuffer(audio_bytes, dtype=np.int16)
         
@@ -81,28 +110,33 @@ class VADHandler:
             
             # Convert to float32
             chunk_float32 = int2float(chunk_int16)
+
+            self.chunk_counter += 1
+            # print_chunk_analysis(chunk_float32, self.chunk_counter)
             
             if self.use_iterator:
                 # Use VADIterator for automatic speech segment detection
                 # Returns: {'start': timestamp}, {'end': timestamp}, or None
                 speech_dict = self.vad_iterator(chunk_float32, return_seconds=True)
-                
+
                 if speech_dict:
+                    logger.info("Speech detected")
+
                     # VADIterator returns dict with either 'start' or 'end' key
                     if 'start' in speech_dict:
                         self.is_speaking = True
                         self.speech_start_time = speech_dict['start']
                         results.append({
-                            'event': 'speech_start',
-                            'ts': time.time() * 1000
+                            'type': 'speech_start',
+                            'ts': self.speech_start_time
                         })
                     
-                    elif 'end' in speech_dict:  # Note: elif, not if - it's one or the other
+                    elif 'end' in speech_dict:
                         self.is_speaking = False
                         self.speech_end_time = speech_dict['end']
                         results.append({
-                            'event': 'speech_end',
-                            'ts': time.time() * 1000
+                            'type': 'speech_end',
+                            'ts': self.speech_end_time
                         })
             else:
                 # Just get speech probability
@@ -111,7 +145,11 @@ class VADHandler:
                 # Simple threshold-based detection
                 was_speaking = self.is_speaking
                 self.is_speaking = speech_prob > 0.5
+
+                if speech_prob > 0.5:
+                    print(f"Speech probability: {speech_prob}")
                 
+                # TODO: re check timestamp
                 result = {
                     'speech_probability': speech_prob,
                     'is_speaking': self.is_speaking,
@@ -120,9 +158,9 @@ class VADHandler:
                 
                 # Detect state changes
                 if not was_speaking and self.is_speaking:
-                    result['event'] = 'speech_start'
+                    result['type'] = 'speech_start'
                 elif was_speaking and not self.is_speaking:
-                    result['event'] = 'speech_end'
+                    result['type'] = 'speech_end'
                 
                 results.append(result)
         
@@ -161,10 +199,9 @@ async def handle_connection(websocket, path):
     try:
         async for message in websocket:
             if isinstance(message, bytes):
-                logger.info("Received message bytes")
                 # Process audio chunk
                 results = handler.process_audio(message)
-                
+
                 # Send all results
                 for result in results:
                     await websocket.send(json.dumps(result))
@@ -186,17 +223,7 @@ async def handle_connection(websocket, path):
                             'timestamp': datetime.utcnow().isoformat()
                         }))
                         logger.info("VAD state reset")
-                        
-                    elif command.get('type') == 'mode':
-                        # Switch between iterator mode and probability mode
-                        use_iterator = command.get('use_iterator', True)
-                        handler = VADHandler(model, use_iterator=use_iterator)
-                        await websocket.send(json.dumps({
-                            'type': 'mode_changed',
-                            'use_iterator': use_iterator,
-                            'timestamp': datetime.utcnow().isoformat()
-                        }))
-                        
+
                 except json.JSONDecodeError:
                     await websocket.send(json.dumps({
                         'error': 'Invalid JSON command',

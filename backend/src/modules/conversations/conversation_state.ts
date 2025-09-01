@@ -1,4 +1,4 @@
-import { IAudioChunk, IAssistantTurn, IConversation, IStopSignal, ITranscription, IUserTurn, ISpeechChunk } from "@/types"
+import { IAudioChunk, IAssistantTurn, IConversation, IStopSignal, ITranscription, IUserTurn, ISpeechChunk, ITranscriptionEvent } from "@/types"
 
 const ASSISTANT_ID = 'jane'
 
@@ -35,7 +35,7 @@ class ConversationState {
     return turn
   }
 
-  addChunkToUserTurn(turnId: string, transcriptions: ITranscription[]): void {
+  addChunkToUserTurn(turnId: string, transcriptions: ITranscriptionEvent[]): void {
     const turn = this.conversation.userTurns.find(t => t.id === turnId)
     if (!turn) throw new Error('Turn not found')
     
@@ -93,50 +93,6 @@ class ConversationState {
     this.updateAssistantTurnStatus(turnId, 'cancelled')
   }
 
-  // Chunk management
-  updateChunkStatus(turnId: string, sequence: number, status: IAudioChunk['status'], processingId?: string): void {
-    const turn = this.conversation.userTurns.find(t => t.id === turnId)
-    if (!turn) return
-    
-    const chunk = turn.chunks.find(c => c.sequence === sequence)
-    if (!chunk) return
-    
-    chunk.status = status
-    if (processingId !== undefined) {
-      chunk.processingId = processingId
-    }
-    
-    if (status === 'failed') {
-      chunk.retryCount++
-    }
-    
-    // Check if all chunks are transcribed
-    if (turn.status !== 'speaking') {
-      this.checkAllTranscribed(turnId)
-    }
-  }
-
-  updateChunkTranscription(turnId: string, sequence: number, transcriptions: ITranscription[], text: string): void {
-    const turn = this.conversation.userTurns.find(t => t.id === turnId)
-    if (!turn) return
-    
-    const chunk = turn.chunks.find(c => c.sequence === sequence)
-    if (!chunk) return
-    
-    chunk.transcriptions = transcriptions
-    chunk.text = text
-    chunk.status = 'transcribed'
-    
-    // Update cached text for the turn
-    turn.cachedText = turn.chunks
-      .filter(c => c.text)
-      .sort((a, b) => a.sequence - b.sequence)
-      .map(c => c.text)
-      .join(' ')
-    
-    this.checkAllTranscribed(turnId)
-  }
-
   checkAllTranscribed(turnId: string) {
     const turn = this.conversation.userTurns.find(t => t.id === turnId)
     if (!turn) return
@@ -155,7 +111,7 @@ class ConversationState {
     this.conversation.lastSequenceNumber = Math.max(this.conversation.lastSequenceNumber, sequence)
   }
 
-  getUnprocessedChunks(turnId: string): IAudioChunk[] {
+  getUnprocessedChunks(turnId: string): ISpeechChunk[] {
     const turn = this.conversation.userTurns.find(t => t.id === turnId)
     if (!turn) return []
     
