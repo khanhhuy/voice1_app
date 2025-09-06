@@ -1,5 +1,5 @@
 import { ConversationState } from "./conversation_state"
-import { whisperGroq } from "@/modules/s2t/whisper_groq"
+import { whisperGroq } from "@/modules/s2t/whisperGroq"
 import { generateText } from "@/modules/text_completions/llm_groq"
 import { ConversationManager } from "./conversation_manager"
 import type { ILLMService } from "./conversation_manager"

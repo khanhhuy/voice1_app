@@ -1,28 +1,53 @@
 import { ITranscriptionEvent, SpeechEvent } from "@/types"
-import { WhisperGroq, filterOutNonSpeechSegments } from "./whisper_groq"
-import { dedupLLM } from "./dedup_groq"
-import { countWhisperTokens } from "../usage/tokenUsage"
-import { requestContext } from "@/services/requestContext"
+import { WhisperGroq } from "./whisperGroq"
+import { DedupService } from "./dedupService"
+import { isEmpty } from "lodash"
 
 const whisperGroq = new WhisperGroq()
 
+// It seems that adding a small gap makes the transcription more stable.
+const BUFFER_GAP_S = 0.3
 interface BufferHistory {
   buffer: Buffer
-  transcription: string
-  timestamp: number
+  text: string
 }
 
 export class TranscriptionService {
   private onTranscription: (event: SpeechEvent) => void
-  private contextSizeMs: number
+  private contextWords: number
   private bufferHistory: BufferHistory[] = []
+  private processingQueue: Array<{ buffer: Buffer, start: number, end: number }> = []
+  private isProcessing: boolean = false
+  private dedupService: DedupService
 
-  constructor(contextSizeMs: number, onTranscription: (event: SpeechEvent) => void) {
+  constructor(contextWords: number, onTranscription: (event: SpeechEvent) => void) {
     this.onTranscription = onTranscription
-    this.contextSizeMs = contextSizeMs
+    this.contextWords = contextWords
+    this.dedupService = new DedupService()
   }
 
-  async startTranscription(buffer: Buffer, startMs: number, endMs: number) {
+  async startTranscription(buffer: Buffer, start: number, end: number) {
+    // Add to queue for serial processing
+    this.processingQueue.push({ buffer, start, end })
+
+    // Start processing if not already processing
+    if (!this.isProcessing) {
+      await this.processQueue()
+    }
+  }
+
+  private async processQueue() {
+    this.isProcessing = true
+
+    while (this.processingQueue.length > 0) {
+      const { buffer } = this.processingQueue.shift()!
+      await this.processBuffer(buffer)
+    }
+
+    this.isProcessing = false
+  }
+
+  private async processBuffer(buffer: Buffer) {
     const transcriptionEvent: ITranscriptionEvent = {
       type: 'transcription',
       status: 'new',
@@ -35,52 +60,56 @@ export class TranscriptionService {
     })
 
     // Get recent buffers within context window
-    const recentBuffers = this.getRecentBuffers(startMs)
+    const recentBuffers = this.getRecentBuffers()
+    const contextText = recentBuffers.map(bh => bh.text).join(' ')
+
     const combinedBuffer = this.combineBuffers([...recentBuffers.map(bh => bh.buffer), buffer])
-    
-    // Transcribe the combined buffer
     const segments = await whisperGroq.transcribe(combinedBuffer)
 
-    const userId = requestContext.currentUserId()
-    // countWhisperTokens(userId, segments)
+    const finalText = segments.map(s => s.text).join(' ')
 
-    const combinedTranscriptions = filterOutNonSpeechSegments(segments)
-
-    const combinedText = combinedTranscriptions.map(t => t.text).join(' ')
-    
-    // If we have previous context, use dedup to extract the new part
-    let finalTranscription = combinedText
-    if (recentBuffers.length > 0) {
-      const pastTranscription = recentBuffers.map(bh => bh.transcription).join(' ')
-      finalTranscription = await dedupLLM(pastTranscription, combinedText)
+    if (isEmpty(finalText)) {
+      transcriptionEvent.status = 'ignored'
+      return
     }
 
-    console.log('\x1b[33m Transcription:' + finalTranscription + '\x1b[0m')
-    console.log('   Combined text:', combinedText)
+    const newText = this.dedupService.dedup(contextText, finalText)
+    if (isEmpty(newText)) {
+      transcriptionEvent.status = 'ignored'
+      return
+    }
 
-    // Store this buffer in history
     this.bufferHistory.push({
       buffer,
-      transcription: finalTranscription,
-      timestamp: startMs
+      text: newText,
     })
 
-    // Clean up old buffers
-    this.cleanupBufferHistory(startMs)
+    this.cleanupBufferHistory()
 
-    if (finalTranscription.trim().length > 0) {
-      transcriptionEvent.status = 'transcribed'
-      transcriptionEvent.transcription = finalTranscription
-    } else {
-      transcriptionEvent.status = 'ignored'
-    }
-
-    return [{ text: finalTranscription }]
+    transcriptionEvent.status = 'transcribed'
+    console.log('==> Transcription: \x1b[33m' + newText + '\x1b[0m')
+    transcriptionEvent.transcription = newText
   }
 
-  private getRecentBuffers(currentTime: number): BufferHistory[] {
-    const cutoffTime = currentTime - this.contextSizeMs
-    return this.bufferHistory.filter(bh => bh.timestamp >= cutoffTime)
+  private countCutoffIdx(words: number): number {
+    let pastWords = 0
+    let idx = this.bufferHistory.length - 1
+    while (pastWords < words && idx >= 0) {
+      pastWords += this.bufferHistory[idx].text.split(' ').length
+      idx--
+    }
+
+    return idx + 1
+  }
+
+  private getRecentBuffers(): BufferHistory[] {
+    if (this.bufferHistory.length === 0) {
+      return []
+    }
+
+    const idx = this.countCutoffIdx(this.contextWords)
+
+    return this.bufferHistory.slice(idx)
   }
 
   private combineBuffers(buffers: Buffer[]): Buffer {
@@ -90,12 +119,29 @@ export class TranscriptionService {
     if (buffers.length === 1) {
       return buffers[0]
     }
-    return Buffer.concat(buffers)
+
+    const gapDurationMs = BUFFER_GAP_S * 1000
+    const sampleRate = 16000 // 16kHz
+    const bytesPerSample = 2 // 16-bit = 2 bytes
+    const gapSamples = Math.floor((gapDurationMs / 1000) * sampleRate)
+    const gapBuffer = Buffer.alloc(gapSamples * bytesPerSample, 0) // Silent audio
+
+    const buffersWithGaps: Buffer[] = []
+
+    for (let i = 0; i < buffers.length; i++) {
+      buffersWithGaps.push(buffers[i])
+      if (i < buffers.length - 1) {
+        buffersWithGaps.push(gapBuffer)
+      }
+    }
+
+    return Buffer.concat(buffersWithGaps)
   }
 
-  private cleanupBufferHistory(currentTime: number): void {
-    const cutoffTime = currentTime - this.contextSizeMs * 2 // Keep some extra history
-    this.bufferHistory = this.bufferHistory.filter(bh => bh.timestamp >= cutoffTime)
-  }
+  private cleanupBufferHistory(): void {
+    const cutoffIdx = this.countCutoffIdx(this.contextWords)
 
+    // -3 to keep some buffer history
+    this.bufferHistory = this.bufferHistory.filter((_, idx) => idx >= (cutoffIdx - 3))
+  }
 }

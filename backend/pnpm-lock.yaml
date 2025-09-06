@@ -1,6 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@algorithm.ts/lcs': ^4.0.5
   '@modelcontextprotocol/sdk': ^1.15.0
   '@tsconfig/node20': ^20.1.4
   '@types/cors': ^2.8.17
@@ -38,6 +39,7 @@ specifiers:
   ws: ^8.18.3
 
 dependencies:
+  '@algorithm.ts/lcs': 4.0.5
   '@modelcontextprotocol/sdk': 1.15.0
   axios: 1.10.0
   cors: 2.8.5
@@ -77,6 +79,10 @@ devDependencies:
   typescript: 5.8.3
 
 packages:
+
+  /@algorithm.ts/lcs/4.0.5:
+    resolution: {integrity: sha512-D01bfwAw7ambpU+qc0Bax/E86qGiMEqECHMjOcY8pO9tVYmf+woTqLMvBdtcjSnGQCaP+Ah4Zf7ownT0Zthtqg==}
+    dev: false
 
   /@cspotcode/source-map-support/0.8.1:
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}

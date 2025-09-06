@@ -19,6 +19,30 @@ interface ITranscription {
   no_speech_prob: number
 }
 
+// Grok Whisper API
+interface ITranscriptionSegment {
+  id: number
+  seek: number
+  start: number
+  end: number
+  text: string
+  tokens: number[]
+  temperature: number
+  avg_logprob: number
+  compression_ratio: number
+  no_speech_prob: number
+}
+
+interface ITranscriptionWord {
+  word: string
+  start: number
+  end: number
+}
+interface ITranscriptionFull {
+  segments: ITranscriptionSegment[] | null
+  words: ITranscriptionWord[] | null
+}
+
 interface IAudioChunk {
   sequence: number
   audioBuffer: Buffer
@@ -132,4 +156,7 @@ export type {
   ITranscriptionEvent,
   SpeechEvent,
   ISpeechChunk,
+  ITranscriptionFull,
+  ITranscriptionSegment,
+  ITranscriptionWord,
 }

@@ -67,7 +67,7 @@ By understanding and monitoring these metadata values, you can significantly imp
 ## Improve transcription quality
 
 The src/modules/s2t/transcriptionService.ts receives raw audio buffer and sends it to whisperGroq
-(src/modules/s2t/whisper_groq.ts) to transcribe the audio
+(src/modules/s2t/whisperGroq.ts) to transcribe the audio
 
 The problem is sometime the audio buffer is too short, and since whisperGroq calls a stateles API, the result is not accurate.
 E.g. " And my customer service team is", "finding". The user somehow pauses before saying "finding", so the audio buffer for
@@ -102,7 +102,7 @@ The 2nd strategy is try to overcome 2. by using fuzzy string matching to remove 
 
 ### Delay strategy
 The src/modules/s2t/transcriptionService.ts receives raw audio buffer and sends it to whisperGroq
-(src/modules/s2t/whisper_groq.ts) to transcribe the audio
+(src/modules/s2t/whisperGroq.ts) to transcribe the audio
 
 The problem is sometime the audio buffer is too short, and since whisperGroq calls a stateles API, the result is not accurate.
 E.g. " And my customer service team is", "finding". The user somehow pauses before saying "finding", so the audio buffer for

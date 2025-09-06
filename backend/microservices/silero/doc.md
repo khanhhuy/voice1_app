@@ -133,3 +133,7 @@ Verification:
 Your file duration (9.7 seconds) × 96,000 bytes/sec = 931,200 bytes, which matches the "audio bytes" shown in the output. ✅
 Note: This file is actually 48 kHz, not the 16 kHz you mentioned in your original question. Many web browsers and MediaRecorder implementations default to 48 kHz sample rate rather than 16 kHz.
 
+
+# Audio size calculation
+- 16 Khz, 16 bits, 1 channel: 32 KB/s
+- 2s: 64 KB

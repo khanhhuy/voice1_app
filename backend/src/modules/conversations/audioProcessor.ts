@@ -1,6 +1,6 @@
 import { WebSocket } from "ws";
 import type { ITranscription, ITranscriptionEvent, SpeechEvent } from "../../types";
-import { WhisperGroq } from "../s2t/whisper_groq";
+import { WhisperGroq } from "../s2t/whisperGroq";
 import { ConvoLogger } from "@/services/convoLogger";
 import { TranscriptionService } from "../s2t/transcriptionService";
 
@@ -9,7 +9,8 @@ interface IAudioMessage {
   ts: number
 }
 
-const DEFAULT_CONTEXT_SIZE_MS = 7000
+const DEFAULT_CONTEXT_WORDS = 20
+
 class AudioBuffer {
   private buffer: Buffer[] = []
 
@@ -63,7 +64,7 @@ export class AudioProcessor {
     this.sessionId = sessionId
     this.onTranscription = onTranscription
     this.logger = logger
-    this.transcriptionService = new TranscriptionService(DEFAULT_CONTEXT_SIZE_MS, onTranscription)
+    this.transcriptionService = new TranscriptionService(DEFAULT_CONTEXT_WORDS, onTranscription)
   }
 
   async init () {
@@ -98,8 +99,6 @@ export class AudioProcessor {
     } else if (message.type === 'speech_end') {
       this.endTs = message.ts
       const speechSegment = this.audioBuffer.extractAudio(this.startTs * 1000, this.endTs * 1000)
-
-      console.log('Speech segment', this.startTs, this.endTs)
 
       // do not await this
       this.transcriptionService.startTranscription(Buffer.from(speechSegment), this.startTs * 1000, this.endTs * 1000)
