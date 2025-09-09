@@ -57,17 +57,6 @@ export class AudioResampler {
     return audioBufferToArrayBuffer(resampledBuffer)
   }
 
-  // async processRecording (event: BlobEvent) {
-  //   const arrayBuffer = await event.data.arrayBuffer()
-
-  //   const inputBuffer = await this.convertWavToAudioBuffer(arrayBuffer)
-
-  //   const resampledBuffer = await this.resampleAudio(inputBuffer, 16000)
-  //   const resampledArrayBuffer = audioBufferToArrayBuffer(resampledBuffer)
-
-  //   return resampledArrayBuffer
-  // }
-
   async resampleAudio (inputBuffer: AudioBuffer, targetSampleRate: number): Promise<AudioBuffer> {
     const offlineContext = new OfflineAudioContext(
       inputBuffer.numberOfChannels,

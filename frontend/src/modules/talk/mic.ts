@@ -74,22 +74,6 @@ export class MicrophoneService {
     }
   }
 
-  async resampleAudio (inputBuffer: AudioBuffer, targetSampleRate: number): Promise<AudioBuffer> {
-    const offlineContext = new OfflineAudioContext(
-      1, // channels
-      inputBuffer.duration * targetSampleRate, // length
-      targetSampleRate // sample rate
-    )
-  
-    const source = offlineContext.createBufferSource()
-    source.buffer = inputBuffer
-    source.connect(offlineContext.destination)
-    source.start()
-  
-    const resampledBuffer = await offlineContext.startRendering()
-    return resampledBuffer
-  }
-
   async stopRecording (): Promise < void> {
     if (!this.isRecording || !this.mediaRecorder) {
       return

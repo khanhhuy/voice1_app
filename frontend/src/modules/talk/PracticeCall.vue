@@ -1,11 +1,24 @@
 <template>
   <div class="flex flex-col gap-4  h-full p-8">
     <div class="flex flex-row gap-4">
-      <Button @click="startSession" class="cursor-pointer" :disabled="status === 'recording'">Start Session</Button>
-      <Button @click="stopSession" variant="outline" class="cursor-pointer" :disabled="status !== 'recording'">Stop Session</Button>
+      <Button
+        class="cursor-pointer"
+        :disabled="status === 'recording'"
+        @click="startSession"
+      >
+        Start Session
+      </Button>
+      <Button
+        variant="outline"
+        class="cursor-pointer"
+        :disabled="status !== 'recording'"
+        @click="stopSession"
+      >
+        Stop Session
+      </Button>
     </div>
     <div>
-        <span class="text-sm text-gray-500">Status: {{ status }}</span>
+      <span class="text-sm text-gray-500">Status: {{ status }}</span>
     </div>
   </div>
 </template>
@@ -50,10 +63,18 @@ function stopSession () {
     // microphone.playRecording()
   }
   if (processor) {
+    processor.sendMessage({
+      type: 'end-convo',
+      payload: {
+        type: 'end-convo',
+        sessionId: currentSessionId.value!,
+        timestamp: Date.now()
+      }
+    })
     processor.disconnect()
   }
 
-
+  currentSessionId.value = null
   status.value = 'stopped'
 }
 
