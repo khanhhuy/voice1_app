@@ -1,7 +1,7 @@
 import { WebSocket, WebSocketServer } from 'ws'
 import type { IStopSignal, IEndConvoSignal, SignalType, IStartSpeakingSignal } from "@/types"
 import { IncomingMessage } from 'http'
-import { getConversationManager } from '@/modules/conversations/storage'
+import { clearSession, getConversationManager } from '@/modules/conversations/storage'
 import { requestContext } from '@/services/requestContext'
 import User from '@/models/User'
 
@@ -28,6 +28,11 @@ async function dispatchBinaryChunk(data: Buffer) {
     throw new Error('Conversation manager not found')
   }
 
+  if (!convoManager.isStarted) {
+    // Need to run this under web socket context
+    await convoManager.start()
+  }
+
   convoManager.receiveAudio(audioBuffer, sequence)
 }
 
@@ -40,14 +45,10 @@ async function dispatchSignal(sessionId: string, signal: SignalType, payload: an
   }
 
   switch (signal) {
-    case 'start-speaking':
-      convoManager.receiveStartSpeakingSignal(payload as IStartSpeakingSignal)
-      break
-    case 'stop':
-      convoManager.receiveStopSignal(payload as IStopSignal)
-      break
     case 'end-convo':
       convoManager.receiveEndConvoSignal(payload as IEndConvoSignal)
+      clearSession(userId, sessionId)
+      console.log('********** Conversation ended **********', "user: ", userId, "session: ", sessionId)
       break
     default:
       throw new Error('Invalid signal type')
@@ -89,8 +90,7 @@ export class AudioWebSocketService {
     })
 
     ws.on('close', () => {
-      // const userId = requestContext.currentUserId()
-      // TODO: Close all active conversations for this user
+      clearSession(user.id, null)
       console.log('WebSocket connection closed')
     })
 

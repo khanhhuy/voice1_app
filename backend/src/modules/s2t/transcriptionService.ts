@@ -48,10 +48,12 @@ export class TranscriptionService {
   }
 
   private async processBuffer(buffer: Buffer) {
+    console.log('-- processing buffer at', new Date().toISOString())
     const transcriptionEvent: ITranscriptionEvent = {
       type: 'transcription',
       status: 'new',
-      transcription: ''
+      transcription: '',
+      updatedAt: Date.now(),
     }
 
     this.onTranscription(transcriptionEvent)
@@ -87,7 +89,10 @@ export class TranscriptionService {
     this.cleanupBufferHistory()
 
     transcriptionEvent.status = 'transcribed'
+    transcriptionEvent.updatedAt = Date.now()
     console.log('==> Transcription: \x1b[33m' + newText + '\x1b[0m')
+    console.log(new Date().toISOString())
+
     transcriptionEvent.transcription = newText
   }
 

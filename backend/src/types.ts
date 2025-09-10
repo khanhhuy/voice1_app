@@ -43,6 +43,13 @@ interface ITranscriptionFull {
   words: ITranscriptionWord[] | null
 }
 
+interface ITranscriptionEvent {
+  type: 'transcription'
+  status: 'new' | 'transcribed' | 'ignored'
+  transcription: string
+  updatedAt: number
+}
+
 interface IAudioChunk {
   sequence: number
   audioBuffer: Buffer
@@ -55,22 +62,15 @@ interface IAudioChunk {
   processingId?: string // Track which async process is handling this
 }
 
-interface ISpeechChunk {
-  transcriptions?: ITranscriptionEvent[]
-  text?: string
-  status: 'unprocessed' | 'transcribing' | 'transcribed' | 'failed'
-  lastSeen?: number
-  retryCount: number
-}
-
 interface IUserTurn {
   id: string
   type: 'userTurn'
   participantId: string
-  chunks: ISpeechChunk[]
+  chunks: ITranscriptionEvent[]
   cachedText?: string
-  status: 'new' | 'speaking' | 'maybe-speaking' | 'wait-replying' | 'completed'
+  status: 'new' | 'speaking' | 'wait-replying' | 'completed'
   allTranscribed: boolean
+  finishedAt: number
   startTime: number
   endTime?: number
 }
@@ -131,12 +131,6 @@ interface IEndSpeechSignal {
   type: 'end-speech'
 }
 
-interface ITranscriptionEvent {
-  type: 'transcription'
-  status: 'new' | 'transcribed' | 'ignored'
-  transcription: string
-}
-
 type SpeechEvent = ITranscriptionEvent | IStartSpeechSignal | IEndSpeechSignal
 
 export type {
@@ -155,7 +149,6 @@ export type {
   IEndSpeechSignal,
   ITranscriptionEvent,
   SpeechEvent,
-  ISpeechChunk,
   ITranscriptionFull,
   ITranscriptionSegment,
   ITranscriptionWord,

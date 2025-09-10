@@ -1,5 +1,5 @@
 import { TalkToUserService } from "./talk_to_user_stream_service"
-import type { ITextToSpeechService } from "@/modules/conversations/conversation_manager"
+import type { ITextToSpeechService } from "@/modules/conversations/conversationManager"
 import { requestContext } from "@/services/requestContext"
 import type { ConversationState } from "@/modules/conversations/conversation_state"
 import { streamSpeech } from "./voice_inworld_stream"

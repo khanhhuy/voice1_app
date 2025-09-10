@@ -15,6 +15,8 @@ export class MicrophoneService {
   private sequence: number
   private audioBlobs: Blob[] = []
   private resampler: AudioResampler = new AudioResampler()
+  private actualSampleRate: number = 16000
+  private needsResampling: boolean = false
 
   constructor (sessionId: string, sequence: number) {
     this.sessionId = sessionId
@@ -37,6 +39,21 @@ export class MicrophoneService {
           // noiseSuppression: true
         }
       })
+
+      // Check actual audio settings
+      const audioTrack = this.mediaStream.getAudioTracks()[0]
+      if (audioTrack) {
+        const settings = audioTrack.getSettings()
+        this.actualSampleRate = settings.sampleRate || 16000
+        this.needsResampling = this.actualSampleRate !== 16000
+        
+        console.log(`Audio recording settings: ${this.actualSampleRate}Hz, resampling needed: ${this.needsResampling}`)
+        
+        // Update resampler with actual sample rate
+        if (this.needsResampling) {
+          this.resampler = new AudioResampler(this.actualSampleRate)
+        }
+      }
 
       this.mediaRecorder = new ExtendableMediaRecorder(this.mediaStream, {
         mimeType: 'audio/wav'
@@ -65,9 +82,15 @@ export class MicrophoneService {
         arrayBuffer = arrayBuffer.slice(diff)
       }
 
-      const sampledBuffer = await this.resampler.processRawPCM(arrayBuffer)
+      // Only resample if needed
+      let finalBuffer: ArrayBuffer
+      if (this.needsResampling) {
+        finalBuffer = await this.resampler.processRawPCM(arrayBuffer)
+      } else {
+        finalBuffer = arrayBuffer
+      }
 
-      const audioData = await buildAudioChunk(this.sessionId, this.sequence, sampledBuffer)
+      const audioData = await buildAudioChunk(this.sessionId, this.sequence, finalBuffer)
       this.sequence++
       void processor.sendRaw(audioData)
       // this.audioBlobs.push(event.data)
@@ -78,6 +101,8 @@ export class MicrophoneService {
     if (!this.isRecording || !this.mediaRecorder) {
       return
     }
+
+    // this.playRecording()
 
     this.mediaRecorder.stop()
     this.cleanup()
@@ -90,6 +115,7 @@ export class MicrophoneService {
     }
 
     if (this.mediaStream) {
+      console.log('stopping media stream')
       this.mediaStream.getTracks().forEach(track => track.stop())
       this.mediaStream = null
     }

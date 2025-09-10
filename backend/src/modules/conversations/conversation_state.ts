@@ -1,4 +1,5 @@
-import { IAudioChunk, IAssistantTurn, IConversation, IStopSignal, ITranscription, IUserTurn, ISpeechChunk, ITranscriptionEvent } from "@/types"
+import { IAssistantTurn, IConversation, IUserTurn, ITranscriptionEvent } from "@/types"
+import { some } from "lodash"
 
 const ASSISTANT_ID = 'jane'
 
@@ -16,7 +17,6 @@ class ConversationState {
     }
   }
 
-  // User turn management
   getCurrentUserTurn(): IUserTurn | null {
     return this.conversation.userTurns[this.conversation.userTurns.length - 1] || null
   }
@@ -29,23 +29,18 @@ class ConversationState {
       chunks: [],
       status: 'new',
       allTranscribed: false,
-      startTime: Date.now()
+      startTime: Date.now(),
+      finishedAt: 0
     }
     this.conversation.userTurns.push(turn)
     return turn
   }
 
-  addChunkToUserTurn(turnId: string, transcriptions: ITranscriptionEvent[]): void {
+  addChunkToUserTurn(turnId: string, transcriptionEvent: ITranscriptionEvent): void {
     const turn = this.conversation.userTurns.find(t => t.id === turnId)
     if (!turn) throw new Error('Turn not found')
     
-    const chunk: ISpeechChunk = {
-      transcriptions,
-      text: '',
-      status: 'unprocessed',
-      retryCount: 0
-    }
-    turn.chunks.push(chunk)
+    turn.chunks.push(transcriptionEvent)
     turn.allTranscribed = false
   }
 
@@ -59,7 +54,13 @@ class ConversationState {
     }
   }
 
-  // Assistant turn management
+  updateUserTurnFinishedAt(turnId: string, ts: number): void {
+    const turn = this.conversation.userTurns.find(t => t.id === turnId)
+    if (!turn) return
+    
+    turn.finishedAt = ts
+  }
+
   getCurrentAssistantTurn(): IAssistantTurn | null {
     return this.conversation.assistantTurns[this.conversation.assistantTurns.length - 1] || null
   }
@@ -97,28 +98,27 @@ class ConversationState {
     const turn = this.conversation.userTurns.find(t => t.id === turnId)
     if (!turn) return
 
-    turn.chunks.forEach(c => {
-      if (c.status === 'transcribed') {
-        c.lastSeen = Date.now()
-      }
-    })
+    turn.allTranscribed = turn.chunks.every(c => c.status === 'transcribed' || c.status === 'ignored')
+    if (turn.allTranscribed) {
+      turn.cachedText = turn.chunks.map(c => c.transcription).join(', ')
+    }
 
-    turn.allTranscribed = turn.chunks.every(c => c.status === 'transcribed' || (c.status === 'failed' && c.retryCount >= 2))
+    return turn.allTranscribed
   }
 
-  // Helper methods
-  updateLastSequenceNumber(sequence: number): void {
-    this.conversation.lastSequenceNumber = Math.max(this.conversation.lastSequenceNumber, sequence)
-  }
-
-  getUnprocessedChunks(turnId: string): ISpeechChunk[] {
+  getLastTranscripted(turnId: string): ITranscriptionEvent | null {
     const turn = this.conversation.userTurns.find(t => t.id === turnId)
-    if (!turn) return []
-    
-    return turn.chunks.filter(c => 
-      c.status === 'unprocessed' || 
-      (c.status === 'failed' && c.retryCount < 2)
-    )
+    if (!turn) return null
+
+    let i = turn.chunks.length - 1
+    while (i >= 0) {
+      if (turn.chunks[i].status === 'transcribed') {
+        return turn.chunks[i]
+      }
+      i--
+    }
+
+    return null
   }
 
   setAssistantText(turnId: string, text: string): void {
@@ -129,14 +129,6 @@ class ConversationState {
     }
   }
 
-  incrementAssistantRetryCount(turnId: string): void {
-    const turn = this.conversation.assistantTurns.find(t => t.id === turnId)
-    if (turn) {
-      turn.retryCount++
-    }
-  }
-
-  // Getters for the conversation manager
   getConversation(): IConversation {
     return this.conversation
   }
@@ -155,7 +147,7 @@ class ConversationState {
     if (!lastUserTurn) return false
 
     return lastUserTurn.chunks.every((c) => {
-      return c.status === 'transcribed' && c.transcriptions?.length === 0
+      return c.status === 'ignored'
     })
   }
 }

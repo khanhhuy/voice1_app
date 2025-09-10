@@ -1,19 +1,14 @@
 #!/usr/bin/env python3
-"""
-Simple Silero VAD WebSocket Server
-Receives audio chunks from Node.js and returns voice activity detection results
-"""
-
 import asyncio
 import json
 import numpy as np
 import websockets
 import torch
+
 from silero_vad import load_silero_vad, VADIterator
 from datetime import datetime
 import logging
 
-# Configure logging to stdout
 import sys
 
 logging.basicConfig(
@@ -27,13 +22,7 @@ logger = logging.getLogger(__name__)
 SAMPLING_RATE = 16000  # Silero VAD expects 16kHz
 CHUNK_SIZE = 512       # Must be exactly 512 samples for 16kHz (32ms)
 
-# Set torch threads for efficiency
-torch.set_num_threads(1)
-
-# Load model once at startup (shared across all connections)
-print("Loading Silero VAD model...")
-VAD_MODEL = load_silero_vad(onnx=True)
-print("Model loaded successfully")
+# torch.set_num_threads(1)
 
 def int2float(sound):
     """Convert int16 audio to float32"""
@@ -44,34 +33,6 @@ def int2float(sound):
     sound = sound.squeeze()
     return sound
 
-def print_chunk_analysis(chunk_float32, chunk_idx=None):
-    """Print detailed analysis of audio chunk for easy difference detection"""
-    prefix = f"[Chunk {chunk_idx}]" if chunk_idx is not None else "[Chunk]"
-    
-    # Basic stats
-    # print(f"{prefix} Shape: {chunk_float32.shape}, Length: {len(chunk_float32)}")
-    # print(f"{prefix} Min: {chunk_float32.min():.6f}, Max: {chunk_float32.max():.6f}")
-    print(f"{prefix} Mean: {chunk_float32.mean():.6f}, Std: {chunk_float32.std():.6f}")
-    # print(f"{prefix} RMS: {np.sqrt(np.mean(chunk_float32**2)):.6f}")
-    
-    # Energy levels
-    energy = np.sum(chunk_float32**2)
-    # print(f"{prefix} Energy: {energy:.6f}")
-    
-    # First/last few samples for pattern detection
-    # print(f"{prefix} First 8: {chunk_float32[:8].tolist()}")
-    # print(f"{prefix} Last 8:  {chunk_float32[-8:].tolist()}")
-    
-    # Zero crossing rate (indicates voice activity)
-    zero_crossings = np.sum(np.diff(np.sign(chunk_float32)) != 0)
-    print(f"{prefix} Zero crossings: {zero_crossings}")
-    
-    # Simple silence detection
-    silence_threshold = 0.001
-    is_silent = np.max(np.abs(chunk_float32)) < silence_threshold
-    print(f"{prefix} Silent (< {silence_threshold}): {is_silent}")
-    
-    print(f"{prefix} " + "="*60)
 class VADHandler:
     """Handles VAD for a single WebSocket connection"""
     
@@ -120,8 +81,6 @@ class VADHandler:
                 speech_dict = self.vad_iterator(chunk_float32, return_seconds=True)
 
                 if speech_dict:
-                    logger.info("Speech detected")
-
                     # VADIterator returns dict with either 'start' or 'end' key
                     if 'start' in speech_dict:
                         self.is_speaking = True
@@ -181,6 +140,13 @@ class VADHandler:
 async def handle_connection(websocket, path):
     """Handle a WebSocket connection"""
     logger.info(f"New connection from {websocket.remote_address} to path {path}")
+
+    # https://claude.ai/chat/bad966c7-854d-41c6-b593-95873cb296c6
+    # TODO: it seems to be possible to share the model across connections to reduce memory usage
+    # but we need to rewrite the ONNXWrapper, we'll leave it for future
+    new_vad_model = load_silero_vad(onnx=True)
+
+    # TODO: preload to trigger download
     
     # Send immediate connection acknowledgment
     try:
@@ -194,7 +160,8 @@ async def handle_connection(websocket, path):
         return
     
     # Create handler for this connection using the pre-loaded model
-    handler = VADHandler(VAD_MODEL, use_iterator=True)
+
+    handler = VADHandler(new_vad_model, use_iterator=True)
     
     try:
         async for message in websocket:

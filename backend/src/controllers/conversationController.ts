@@ -16,7 +16,7 @@ routes.post("/", async (req, res) => {
     convo.getConversation().sessionId,
     convoManager
   )
-  await convoManager.start()
+  await convoManager.prepare()
 
   res.send({
     sessionId: convo.getConversation().sessionId,

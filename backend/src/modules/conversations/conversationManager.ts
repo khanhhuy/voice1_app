@@ -1,57 +1,7 @@
-import type { AudioBufferItem, IAssistantTurn, IEndConvoSignal, IStartSpeakingSignal, IStopSignal, ITranscription, ITranscriptionEvent, IUserTurn, SpeechEvent } from "@/types"
+import type { IAssistantTurn, IEndConvoSignal, IStartSpeakingSignal, IStopSignal, ITranscriptionEvent, IUserTurn, SpeechEvent } from "@/types"
 import { ConversationState } from "./conversation_state"
 import { AudioProcessor } from "./audioProcessor"
-import { ConvoLogger } from "@/services/convoLogger"
-
-// TODO: cancel the loop if the state stays consistent for X seconds
-//       cancel when websocket is closed
-class AudioBuffer {
-  private items: AudioBufferItem[] = []
-  
-  push(item: AudioBufferItem): void {
-    this.items.push(item)
-  }
-  
-  hasItems(): boolean {
-    return this.items.length > 0
-  }
-  
-  getLastItem(): AudioBufferItem | null {
-    return this.items[this.items.length - 1] || null
-  }
-  
-  isLastItemStopSignal(): boolean {
-    const lastItem = this.getLastItem()
-    return lastItem !== null && 'type' in lastItem && lastItem.type === 'stop'
-  }
-
-  containStartSpeakingSignal(): boolean {
-    return this.items.some(item => 'type' in item && item.type === 'start-speaking')
-  }
-
-  extractAudioChunks(): { chunks: Buffer[], sequences: number[] } {
-    const chunks: Buffer[] = []
-    const sequences: number[] = []
-    
-    // Extract all audio chunks (not stop signals)
-    this.items = this.items.filter(item => {
-      if ('type' in item) {
-        return false // Remove stop signals after processing
-      }
-      chunks.push(item as Buffer)
-      // Assuming we track sequence numbers separately
-      sequences.push(Date.now()) // TODO: You'd get actual sequence from somewhere
-      return false // Remove from buffer
-    })
-    
-    return { chunks, sequences }
-  }
-  
-  clear(): void {
-    this.items = []
-  }
-}
-
+import { some } from "lodash"
 
 class SpeechEventHelper {
   static isDoneSpeaking(events: SpeechEvent[]): boolean {
@@ -67,20 +17,20 @@ class SpeechEventHelper {
   }
 }
 
+// TODO: force close the conversation if it exceeds a time limit
+
 // Conversation Manager
 class ConversationManager {
-  private audioBuffer: AudioBuffer
   private speechEventBuffer: SpeechEvent[]
   private conversationState: ConversationState
   private loopInterval: number = 200 // milliseconds
   private intervalId: NodeJS.Timeout | null = null
-  
+
   // Service instances (injected or created)
   private llm: ILLMService
   private textToSpeech: ITextToSpeechService
   private audioProcessor: AudioProcessor
-  public logger: ConvoLogger
-  
+
   constructor(
     sessionId: string,
     participantId: string,
@@ -91,42 +41,43 @@ class ConversationManager {
     }
   ) {
     this.speechEventBuffer = []
-    this.audioBuffer = new AudioBuffer()
     this.conversationState = conversationState
     this.llm = services.llm
     this.textToSpeech = services.textToSpeech
-    this.logger = new ConvoLogger()
-    this.audioProcessor = new AudioProcessor(sessionId, this.onReceiveTranscription.bind(this), this.logger)
+    this.audioProcessor = new AudioProcessor(sessionId, this.onReceiveTranscription.bind(this))
   }
-  
+
+  async prepare(): Promise<void> {
+    await this.audioProcessor.init()
+  }
+
   async start(): Promise<void> {
     if (this.isStarted) {
       return
     }
 
-    // this.intervalId = setInterval(() => this.loop(), this.loopInterval)
-    await this.audioProcessor.init()
-    // this.logger.start()
+    this.intervalId = setInterval(() => this.loop(), this.loopInterval)
   }
-  
+
   stop(): void {
     if (this.intervalId) {
       clearInterval(this.intervalId)
       this.intervalId = null
     }
+    this.audioProcessor.close()
   }
 
   get isStarted(): boolean {
     return this.intervalId !== null
   }
-  
+
   private loop(): void {
     // this.reportLastTurns()
 
-    // 1. Process audio buffer
-    this.processAudioBuffer()
-    
-    // 3. Process assistant turn
+    // 1. Process user turn
+    this.processSpeechEvents()
+
+    // 2. Process assistant turn
     this.processAssistantTurn()
   }
 
@@ -145,73 +96,109 @@ class ConversationManager {
     }
   }
 
-  private processAudioBuffer(): void {
-    // if (!this.audioBuffer.hasItems()) {
-    //   return
-    // }
+  private processSpeechEvents(): void {
+    const transcriptionEvents = SpeechEventHelper.extractTranscriptionEvents(this.speechEventBuffer)
 
-    // const isUserDoneSpeaking = this.audioBuffer.isLastItemStopSignal()
-    // const { chunks, sequences } = this.audioBuffer.extractAudioChunks()
-    
-    // let currentUserTurn = this.conversationState.getCurrentUserTurn()
-    // let containStartSpeakingSignal = this.audioBuffer.containStartSpeakingSignal()
-    
-    // // Check if we need to create a new turn
-    // if (!currentUserTurn || currentUserTurn.status === 'completed') {
-    //   console.log('create new user turn')
-    //   currentUserTurn = this.conversationState.createUserTurn()
-    // }
-    
-    // // Add chunks to current turn
-    // chunks.forEach((chunk, index) => {
-    //   const sequence = sequences[index]
-    //   this.conversationState.addChunkToUserTurn(currentUserTurn.id, chunk, sequence)
-    //   this.conversationState.updateLastSequenceNumber(sequence)
-      
-    //   // Immediately start transcription for this chunk
-    //   this.initTranscription(currentUserTurn.id, sequence, chunk)
-    // })
-    
-    // // Update turn status if user stopped speaking
-    // if (isUserDoneSpeaking && ['new', 'speaking'].includes(currentUserTurn.status)) {
-    //   console.log('update user turn to wait-replying', currentUserTurn.id)
-    //   this.conversationState.updateUserTurnStatus(currentUserTurn.id, 'wait-replying')
-    // }
+    let currentUserTurn = this.conversationState.getCurrentUserTurn()
 
-    // if (!isUserDoneSpeaking && containStartSpeakingSignal) {
-    //   // we don't know if this is a real speaking or just noise
-    //   // but in most cases, it would be user speaking, so we should stop the responding
-    //   this.conversationState.updateUserTurnStatus(currentUserTurn.id, 'speaking')
-    // }
+    // Check if we need to create a new turn
+    if (!currentUserTurn || currentUserTurn.status === 'completed') {
+      currentUserTurn = this.conversationState.createUserTurn()
+    }
 
-    // // Clear the buffer after processing
-    // this.audioBuffer.clear()
+    // Add chunks to current turn
+    transcriptionEvents.forEach((event) => {
+      this.conversationState.addChunkToUserTurn(currentUserTurn.id, event)
+    })
+
+    const allTranscribed = this.conversationState.checkAllTranscribed(currentUserTurn.id)
+
+    if (currentUserTurn.status === 'new') {
+      if (currentUserTurn.chunks.length > 0) {
+        this.conversationState.updateUserTurnStatus(currentUserTurn.id, 'speaking')
+      }
+    } else if (currentUserTurn.status === 'speaking') {
+      // if the last event is start-speech, we wail until the speech is fully present
+      const lastEvent = this.speechEventBuffer[this.speechEventBuffer.length - 1]
+      if (lastEvent && lastEvent.type === 'start-speech') {
+        this.speechEventBuffer = [lastEvent]
+        return
+      }
+
+      if (!allTranscribed) {
+        return
+      }
+
+      if (this.isEndSpeechTurn(currentUserTurn)) {
+        console.log('-- end turn at', new Date().toISOString())
+        this.conversationState.updateUserTurnStatus(currentUserTurn.id, 'wait-replying')
+        this.conversationState.updateUserTurnFinishedAt(currentUserTurn.id, Date.now())
+      }
+    } else if (currentUserTurn.status === 'wait-replying') {
+      if (this.hasNewSpeech(currentUserTurn)) {
+        this.conversationState.updateUserTurnStatus(currentUserTurn.id, 'speaking')
+        return
+      }
+    }
+
+    // Clear the buffer after processing
+    this.speechEventBuffer = []
+  }
+
+  private isEndSpeechTurn(turn: IUserTurn): boolean {
+    if (turn.status !== 'speaking') {
+      throw new Error('Turn is not speaking')
+    }
+
+    if (!turn.allTranscribed) {
+      return false
+    }
+
+    const lastEvent = turn.chunks[turn.chunks.length - 1]
+
+    if (lastEvent && this.exceedWaitingTime(lastEvent)) {
+      return true
+    }
+
+    return false
+  }
+
+  private exceedWaitingTime(lastTranscripted: ITranscriptionEvent): boolean {
+    const waitingTimeMs = 500
+    return lastTranscripted.updatedAt < Date.now() - waitingTimeMs
+  }
+
+  private hasNewSpeech(turn: IUserTurn): boolean {
+    return some(turn.chunks, (c) => {
+      return c.status === 'transcribed' && c.updatedAt > turn.finishedAt
+    })
   }
 
   private processAssistantTurn(): void {
     const lastUserTurn = this.conversationState.getLastUserTurn()
     const lastAssistantTurn = this.conversationState.getLastAssistantTurn()
-    
+
     if (!lastUserTurn) return
 
     // Check if current assistant turn needs to be cancelled
     if (lastAssistantTurn && lastAssistantTurn.status !== 'completed' && lastAssistantTurn.status !== 'cancelled') {
-    //   // Cancel if user is speaking
+      // User is speaking after exceed waiting time, so we cancel the assistant turn to wait for more input
       if (lastUserTurn.status === 'speaking') {
         console.log('cancel 3')
         this.conversationState.cancelAssistantTurn(lastAssistantTurn.id)
         return
       }
-      
+
       // Cancel if responding to wrong turn
-      if (lastAssistantTurn.responseToTurnId !== lastUserTurn.id) {
+      if (lastAssistantTurn && lastAssistantTurn.responseToTurnId !== lastUserTurn.id) {
         console.log('cancel 2')
         this.conversationState.cancelAssistantTurn(lastAssistantTurn.id)
       }
     }
-    
+
+
     // Check if we need to create a new assistant turn
-    if (lastUserTurn.status === 'wait-replying' && lastUserTurn.allTranscribed) {
+    if (lastUserTurn.status === 'wait-replying') {
       if (this.conversationState.emptyUserTurn()) {
         this.cancelInvalidUserTurn(lastAssistantTurn, lastUserTurn)
         return
@@ -224,12 +211,12 @@ class ConversationManager {
         this.initLLMGeneration(newAssistantTurn)
       }
       // Process existing assistant turn
-      else if (lastAssistantTurn.responseToTurnId === lastUserTurn.id) {
+      else {
         this.processExistingAssistantTurn(lastAssistantTurn)
       }
     }
   }
-  
+
   private processExistingAssistantTurn(assistantTurn: IAssistantTurn): void {
     switch (assistantTurn.status) {
       case 'wait-speaking':
@@ -237,16 +224,16 @@ class ConversationManager {
         this.conversationState.updateAssistantTurnStatus(assistantTurn.id, 'generating-text')
         this.initLLMGeneration(assistantTurn)
         break
-        
+
       case 'generated-text':
         // Start speech generation
         this.conversationState.updateAssistantTurnStatus(assistantTurn.id, 'generating-speech')
         this.initSpeechGeneration(assistantTurn)
         break
-        
+
       case 'streamed-speech':
         this.conversationState.updateAssistantTurnStatus(assistantTurn.id, 'completed')
-          
+
         const userTurn = this.conversationState.getLastUserTurn()
         if (userTurn && userTurn.id === assistantTurn.responseToTurnId) {
           this.conversationState.updateUserTurnStatus(userTurn.id, 'completed')
@@ -254,12 +241,12 @@ class ConversationManager {
         break
     }
   }
-  
+
   private initLLMGeneration(assistantTurn: IAssistantTurn): void {
     const processingId = `llm-${assistantTurn.id}-${Date.now()}`
     this.llm.generateResponse(this.conversationState, assistantTurn, processingId)
   }
-  
+
   private initSpeechGeneration(assistantTurn: IAssistantTurn): void {
     const processingId = `tts-${assistantTurn.id}-${Date.now()}`
     this.textToSpeech.generateSpeech(this.conversationState, assistantTurn, processingId)
@@ -277,19 +264,10 @@ class ConversationManager {
   onReceiveTranscription(event: SpeechEvent): void {
     this.speechEventBuffer.push(event)
   }
-  
+
   // Method to receive audio from client
   receiveAudio(audioChunk: Buffer, sequence: number): void {
     this.audioProcessor.receiveRawAudioChunk(audioChunk)
-  }
-  
-  // Method to receive stop signal from client
-  receiveStopSignal(stopSignal: IStopSignal): void {
-    this.audioBuffer.push(stopSignal)
-  }
-
-  receiveStartSpeakingSignal(startSpeakingSignal: IStartSpeakingSignal): void {
-    this.audioBuffer.push(startSpeakingSignal)
   }
 
   receiveEndConvoSignal(endConvoSignal: IEndConvoSignal): void {

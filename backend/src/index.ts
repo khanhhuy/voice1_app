@@ -8,7 +8,6 @@ import { AudioWebSocketService } from './controllers/audioWebSocket'
 import { routes as conversationsRoutes } from './controllers/conversationController'
 import { routes as authRoutes } from './controllers/authController'
 import { routes as userRoutes } from './controllers/userController'
-import { requestContext } from './services/requestContext'
 import { authMiddleware, getUserFromToken } from './middleware/authMiddleware'
 import { getDb, sync } from './db'
 
