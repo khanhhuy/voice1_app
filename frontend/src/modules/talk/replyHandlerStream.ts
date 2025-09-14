@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { createEventHook } from '@vueuse/core'
 
 interface StreamMetadata {
   type: 'reply_start' | 'reply_end'
@@ -8,6 +9,8 @@ interface StreamMetadata {
 
 export const GLOBAL_BUFFER_MAP = new Map<string, { buffer: AudioBufferSourceNode, ended: boolean }>()
 export const CAN_PLAY_AUDIO = ref(true)
+
+export const audioPlayingEvent = createEventHook<number>()
 
 function allowPlayback (state: boolean) { 
   CAN_PLAY_AUDIO.value = state
@@ -76,6 +79,8 @@ class ReplyHandler {
     source.start(this.nextStartTime)
     this.nextStartTime += audioBuffer.duration
 
+    audioPlayingEvent.trigger(audioBuffer.duration)
+
     // Cleanup after playback
     source.onended = () => {
       source.disconnect()
@@ -114,9 +119,7 @@ class ReplyHandler {
     if (msg.type === 'reply_start') {
       // Reset timing for new stream
       this.nextStartTime = 0
-      console.log('Audio stream started:', msg.streamId)
     } else if (msg.type === 'reply_end') {
-      console.log('Audio stream ended:', msg.streamId)
     }
   }
 

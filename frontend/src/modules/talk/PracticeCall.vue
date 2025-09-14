@@ -16,6 +16,9 @@
             <div class="flex flex-col">
               <span class="text-sm text-gray-500 capitalize">{{ agent.name }}</span>
               <span class="text-sm text-gray-700 font-semibold">{{ agent.role }}</span>
+              <div class="text-sm text-gray-400 font-light italic mt-1">
+                {{ isSpeaking ? 'Speaking...' : '' }}
+              </div>
             </div>
           </div>
           <div class="mt-6 pl-6">
@@ -91,6 +94,7 @@ import { AGENTS, type IAgent } from './agents'
 import { usePageHeader } from '@/modules/header/usePageHeader'
 import { buildAudioChunk } from './buildAudioChunk'
 import Loading from '@/components/ui/Loading.vue'
+import { audioPlayingEvent } from './replyHandlerStream'
 
 const route = useRoute()
 const { setTitle } = usePageHeader()!
@@ -101,6 +105,31 @@ const agent: Ref<IAgent | null> = ref(null)
 let processor: AudioProcessor | null = null
 let microphone: MicrophoneService | null = null
 const micReady = ref(false)
+
+let speakingInterval: ReturnType<typeof setInterval> | null = null
+let endSpeakingAt: number = 0
+const isSpeaking = ref(false)
+
+audioPlayingEvent.on((duration) => {
+  if (!isSpeaking.value) {
+    endSpeakingAt = Date.now()
+
+    if (speakingInterval) {
+      clearInterval(speakingInterval)
+    }
+
+    speakingInterval = setInterval(() => {
+      if (Date.now() > endSpeakingAt) {
+        clearInterval(speakingInterval!)
+        speakingInterval = null
+        isSpeaking.value = false
+      }
+    }, 200)
+  }
+
+  isSpeaking.value = true
+  endSpeakingAt += (duration * 1000)
+})
 
 async function handleAudioBuffer (audioBuffer: ArrayBuffer, processor: AudioProcessor, sessionId: string, sequence: number) {
   const audioData = await buildAudioChunk(sessionId, sequence, audioBuffer)
@@ -171,6 +200,8 @@ async function stopSession () {
     status.value = 'not_started'
   }
 }
+
+
 
 onMounted(async () => {
   const a = AGENTS.find(a => a.name === route.params.agent)

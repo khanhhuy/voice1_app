@@ -122,7 +122,6 @@ export class MicrophoneService {
     // rawChunkSize is the raw PCM wav size (9600)
     // only the 1st chunk exceeds this size since it contains the header
     if (arrayBuffer.byteLength > RAW_CHUNK_SIZE) {
-      console.log('slice the chunk')
       const diff = arrayBuffer.byteLength - RAW_CHUNK_SIZE
       arrayBuffer = arrayBuffer.slice(diff)
     }
