@@ -10,7 +10,7 @@ const routes = [
   { path: '/login', component: Login },
   { path: '/account', component: Account },
   { path: '/practice/start', component: Start },
-  { path: '/practice/mae', component: PracticeCall },
+  { path: '/practice/:agent', component: PracticeCall },
   { path: '/practice/product', component: ProductScenarios },
   { path: '/practice/customer-support', component: CustomerSupportScenarios },
 ]

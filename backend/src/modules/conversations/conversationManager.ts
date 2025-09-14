@@ -119,16 +119,17 @@ class ConversationManager {
       }
     } else if (currentUserTurn.status === 'speaking') {
       // if the last event is start-speech, we wail until the speech is fully present
+      // the speech is in either 2 states: [start], [end, speech events, start]
+      // speech events will never be available without the end event
       const lastEvent = this.speechEventBuffer[this.speechEventBuffer.length - 1]
       if (lastEvent && lastEvent.type === 'start-speech') {
         this.speechEventBuffer = [lastEvent]
         return
       }
 
-      if (!allTranscribed) {
-        return
-      }
-
+      // total waiting time = transcription time + 1s from the last event
+      // - transcription time can be quite fast ~ 0.5s
+      // - 1s is ok-ish, 0.5s is to fast
       if (this.isEndSpeechTurn(currentUserTurn)) {
         console.log('-- end turn at', new Date().toISOString())
         this.conversationState.updateUserTurnStatus(currentUserTurn.id, 'wait-replying')
@@ -164,7 +165,7 @@ class ConversationManager {
   }
 
   private exceedWaitingTime(lastTranscripted: ITranscriptionEvent): boolean {
-    const waitingTimeMs = 500
+    const waitingTimeMs = 1000
     return lastTranscripted.updatedAt < Date.now() - waitingTimeMs
   }
 

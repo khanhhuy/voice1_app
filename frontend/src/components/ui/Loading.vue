@@ -1,9 +1,12 @@
 <template>
-  <div class="inline-flex items-center gap-1 text-muted-foreground">
+  <div class="inline-flex items-center gap-1">
     <div class="animate-spin">
       <i class="ri-loader-line" />
     </div>
-    <span class="text-xs text-muted-foreground" v-if="text">{{ text }}</span>
+    <span
+      v-if="text"
+      class="text-xs"
+    >{{ text }}</span>
   </div>
 </template>
 

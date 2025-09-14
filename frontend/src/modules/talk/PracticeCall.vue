@@ -1,42 +1,133 @@
 <template>
-  <div class="flex flex-col gap-4  h-full p-8">
-    <div class="flex flex-row gap-4">
-      <Button
-        class="cursor-pointer"
-        :disabled="status === 'recording'"
-        @click="startSession"
+  <div class="h-full flex flex-col items-center mt-32">
+    <div
+      v-if="agent"
+      class="conversation-container flex flex-col bg-[#FAFAFA] p-12 rounded-lg shadow-sm"
+    >
+      <div
+        class="flex flex-row gap-8 w-[900px]"
       >
-        Start Session
-      </Button>
-      <Button
-        variant="outline"
-        class="cursor-pointer"
-        :disabled="status !== 'recording'"
-        @click="stopSession"
-      >
-        Stop Session
-      </Button>
-    </div>
-    <div>
-      <span class="text-sm text-gray-500">Status: {{ status }}</span>
+        <div class="flex flex-col flex-1">
+          <div class="flex flex-row gap-3 bg-white rounded-lg p-6">
+            <img 
+              :src="agent.avatar"
+              class="w-16 h-16 rounded-full"
+            >
+            <div class="flex flex-col">
+              <span class="text-sm text-gray-500 capitalize">{{ agent.name }}</span>
+              <span class="text-sm text-gray-700 font-semibold">{{ agent.role }}</span>
+            </div>
+          </div>
+          <div class="mt-6 pl-6">
+            <div class="text-sm text-gray-400">
+              Tips, try asking <span class="capitalize">{{ agent.name }}</span> about:
+            </div>
+            <ul class="text-sm text-gray-400 list-disc list-inside">
+              <li
+                v-for="tip in agent.tips"
+                :key="tip"
+              >
+                {{ tip }}
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="bg-white flex-1 rounded-lg">
+          <div class="text-sm text-gray-500 p-6">
+            Transcription will appear here
+          </div>
+        </div>
+      </div>
+      <div class="flex flex-col items-center justify-center relative">
+        <div class="mt-18">
+          <Button
+            v-show="status === 'not_started'"
+            class="px-12 cursor-pointer"
+            size="sm"
+            @click="startSession"
+          >
+            <i class="ri-phone-fill" />
+            <span>Start</span>
+          </Button>
+          <Button
+            v-show="status === 'preparing'"
+            class="px-12 text-white"
+            size="sm"
+          >
+            <Loading text="Connecting..." />
+          </Button>
+          <Button
+            v-show="status === 'recording'"
+            class="px-12 bg-red-500 hover:bg-red-600 cursor-pointer"
+            size="sm"
+            @click="stopSession"
+          >
+            <i class="ri-phone-fill " />
+            <span>End</span>
+          </Button>
+        </div>
+        <div
+          v-if="microphone && micReady"
+          class="absolute top-18 right-0 text-xs text-gray-300 w-[150px]"
+        >
+          <div class="text-right">
+            Mic:
+            {{ microphone.getDeviceInfo()?.label.replace('Default -', '') }}
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, type Ref, onMounted } from 'vue'
 import { apiClient } from '@/lib/ajax'
 import { MicrophoneService } from './mic'
 import { AudioProcessor } from './processor'
 import { Button } from '@/components/ui/button'
+import { useRoute } from 'vue-router'
+import { AGENTS, type IAgent } from './agents'
+import { usePageHeader } from '@/modules/header/usePageHeader'
+import { buildAudioChunk } from './buildAudioChunk'
+import Loading from '@/components/ui/Loading.vue'
+
+const route = useRoute()
+const { setTitle } = usePageHeader()!
 
 const currentSessionId = ref<string | null>(null)
-const status = ref<'not_started' | 'recording' | 'stopped'>('not_started')
-
+const status = ref<'not_started' | 'preparing' | 'recording'>('not_started')
+const agent: Ref<IAgent | null> = ref(null)
 let processor: AudioProcessor | null = null
 let microphone: MicrophoneService | null = null
+const micReady = ref(false)
+
+async function handleAudioBuffer (audioBuffer: ArrayBuffer, processor: AudioProcessor, sessionId: string, sequence: number) {
+  const audioData = await buildAudioChunk(sessionId, sequence, audioBuffer)
+  void processor.sendRaw(audioData)
+}
+
+async function prepareMic () {
+  micReady.value = false
+  if (microphone) {
+    await microphone.stopRecording()
+  }
+
+  microphone = new MicrophoneService(async (audioBuffer, sequence) => {
+    if (!processor?.isConnected || !currentSessionId.value) {
+      return
+    }
+
+    void handleAudioBuffer(audioBuffer, processor, currentSessionId.value, sequence)
+  })
+
+  await microphone.startRecording()
+  micReady.value = true
+}
 
 async function startSession () {
+  status.value = 'preparing'
+
   if (currentSessionId.value) {
     return
   }
@@ -51,32 +142,48 @@ async function startSession () {
   processor = new AudioProcessor(currentSessionId.value)
   await processor.connectWithUpgrade()
 
-  microphone = new MicrophoneService(currentSessionId.value, 0)
-  await microphone.startRecording(processor)
-
   status.value = 'recording'
 }
 
-function stopSession () {
-  if (microphone) {
-    microphone.stopRecording()
+async function stopSession () {
+  try {
+    if (microphone) {
+      await microphone.stopRecording()
     // microphone.playRecording()
-  }
-  if (processor) {
-    processor.sendMessage({
-      type: 'end-convo',
-      payload: {
+    }
+
+    if (processor) {
+      processor.sendMessage({
         type: 'end-convo',
-        sessionId: currentSessionId.value!,
-        timestamp: Date.now()
-      }
-    })
-    processor.disconnect()
+        payload: {
+          type: 'end-convo',
+          sessionId: currentSessionId.value!,
+          timestamp: Date.now()
+        }
+      })
+      processor.disconnect()
+    }
+
+    currentSessionId.value = null
+  } catch (error) {
+    console.error('Failed to stop session:', error)
+  } finally {
+    status.value = 'not_started'
+  }
+}
+
+onMounted(async () => {
+  const a = AGENTS.find(a => a.name === route.params.agent)
+  if (!a) { 
+    console.error('Agent not found')
+    return
   }
 
-  currentSessionId.value = null
-  status.value = 'stopped'
-}
+  agent.value = a
+  setTitle(`Practice with ${agent.value?.name}`)
+
+  await prepareMic()
+})
 
 
 </script>

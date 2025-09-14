@@ -4,26 +4,53 @@ import { AudioProcessor } from './processor'
 
 import { MediaRecorder as ExtendableMediaRecorder, register } from 'extendable-media-recorder'
 import { connect } from 'extendable-media-recorder-wav-encoder'
+import { RAW_CHUNK_SIZE } from './constants'
+
+function debugRecording (blobs: Blob[]) {
+  // Note: this is still 48Khz because the blob is retrieved directly from the mediaRecorder
+  const audioBlob = new Blob(blobs, { type: 'audio/wav' })  
+
+  if (blobs.length === 0) {
+    return
+  }
+  
+  // play
+  const audio = new Audio()
+  audio.src = URL.createObjectURL(audioBlob)
+  audio.play()
+
+  // save
+  const url = URL.createObjectURL(audioBlob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `recording-${Date.now()}.wav`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+type OnAudioBuffer = (audioBuffer: ArrayBuffer, sequence: number) => Promise<void>
 
 // 16 bit, 48KHz, 1 channel, each chunk is 100ms, no header
-const RAW_CHUNK_SIZE = 9600 
 export class MicrophoneService {
   private mediaRecorder: any
   private mediaStream: MediaStream | null = null
   private isRecording = false
-  private sessionId: string
   private sequence: number
   private audioBlobs: Blob[] = []
   private resampler: AudioResampler = new AudioResampler()
   private actualSampleRate: number = 16000
   private needsResampling: boolean = false
+  private onAudioBuffer: OnAudioBuffer
+  private deviceInfo: { deviceId: string; label: string; groupId: string } | null = null
 
-  constructor (sessionId: string, sequence: number) {
-    this.sessionId = sessionId
+  constructor (onAudioBuffer: OnAudioBuffer) {
     this.sequence = 0
+    this.onAudioBuffer = onAudioBuffer
   }
 
-  async startRecording (processor: AudioProcessor): Promise<void> {
+  async startRecording (): Promise<void> {
     if (this.isRecording) {
       throw new Error('Recording is already in progress')
     }
@@ -46,8 +73,22 @@ export class MicrophoneService {
         const settings = audioTrack.getSettings()
         this.actualSampleRate = settings.sampleRate || 16000
         this.needsResampling = this.actualSampleRate !== 16000
-        
+
         console.log(`Audio recording settings: ${this.actualSampleRate}Hz, resampling needed: ${this.needsResampling}`)
+
+        // Get device information
+        const devices = await navigator.mediaDevices.enumerateDevices()
+        const audioInputs = devices.filter(device => device.kind === 'audioinput')
+        const currentDevice = audioInputs.find(device => device.deviceId === settings.deviceId)
+
+        if (currentDevice) {
+          this.deviceInfo = {
+            deviceId: currentDevice.deviceId,
+            label: currentDevice.label || 'Unknown Microphone',
+            groupId: currentDevice.groupId
+          }
+          console.log(`Using microphone: ${this.deviceInfo.label}`)
+        }
         
         // Update resampler with actual sample rate
         if (this.needsResampling) {
@@ -60,8 +101,10 @@ export class MicrophoneService {
       })
 
       // Add audio blobs while recording 
-      this.mediaRecorder.addEventListener('dataavailable', (event: BlobEvent) => {
-        void this.handleDataAvailable(event, processor)
+      this.mediaRecorder.addEventListener('dataavailable', async (event: BlobEvent) => {
+        const audioBuffer = await this.processAudioBuffer(event)
+        await this.onAudioBuffer(audioBuffer, this.sequence)
+        this.sequence++
       })
 
 
@@ -73,28 +116,27 @@ export class MicrophoneService {
     }
   }
 
-  async handleDataAvailable (event: BlobEvent, processor: AudioProcessor): Promise<void> {
-    if (event.data.size > 0 && processor.isConnected) {
-      let arrayBuffer = await event.data.arrayBuffer()
+  async processAudioBuffer (event: BlobEvent): Promise<ArrayBuffer> {
+    let arrayBuffer = await event.data.arrayBuffer()
 
-      if (arrayBuffer.byteLength > RAW_CHUNK_SIZE) {
-        const diff = arrayBuffer.byteLength - RAW_CHUNK_SIZE
-        arrayBuffer = arrayBuffer.slice(diff)
-      }
-
-      // Only resample if needed
-      let finalBuffer: ArrayBuffer
-      if (this.needsResampling) {
-        finalBuffer = await this.resampler.processRawPCM(arrayBuffer)
-      } else {
-        finalBuffer = arrayBuffer
-      }
-
-      const audioData = await buildAudioChunk(this.sessionId, this.sequence, finalBuffer)
-      this.sequence++
-      void processor.sendRaw(audioData)
-      // this.audioBlobs.push(event.data)
+    // rawChunkSize is the raw PCM wav size (9600)
+    // only the 1st chunk exceeds this size since it contains the header
+    if (arrayBuffer.byteLength > RAW_CHUNK_SIZE) {
+      console.log('slice the chunk')
+      const diff = arrayBuffer.byteLength - RAW_CHUNK_SIZE
+      arrayBuffer = arrayBuffer.slice(diff)
     }
+
+    // Only resample if needed
+    let finalBuffer: ArrayBuffer
+    if (this.needsResampling) {
+      finalBuffer = await this.resampler.processRawPCM(arrayBuffer)
+    } else {
+      finalBuffer = arrayBuffer
+    }
+
+    // this.audioBlobs.push(event.data)
+    return finalBuffer
   }
 
   async stopRecording (): Promise < void> {
@@ -102,11 +144,15 @@ export class MicrophoneService {
       return
     }
 
-    // this.playRecording()
+    // this.debugRecording(this.audioBlobs)
 
     this.mediaRecorder.stop()
     this.cleanup()
     this.isRecording = false
+  }
+
+  getDeviceInfo (): { deviceId: string; label: string; groupId: string } | null {
+    return this.deviceInfo
   }
 
   private cleanup (): void {
@@ -121,34 +167,5 @@ export class MicrophoneService {
     }
 
     this.mediaRecorder = null
-  }
-
-  playRecording (): void {
-    // Note: this is still 48Khz because the blob is retrieved directly from the mediaRecorder
-    const audioBlob = new Blob(this.audioBlobs, { type: 'audio/wav' })  
-    if (this.audioBlobs) {
-      const audio = new Audio()
-      audio.src = URL.createObjectURL(audioBlob)
-      audio.play()
-      this.saveRecording(audioBlob)
-    }
-  }
-
-  saveRecording (audioBlob: Blob): void {
-    if (audioBlob.size > 0) {
-      const url = URL.createObjectURL(audioBlob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `recording-${this.sessionId}-${Date.now()}.wav`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-    }
-  }
-
-
-  get recordingState (): boolean {
-    return this.isRecording
   }
 }
