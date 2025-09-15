@@ -81,7 +81,6 @@ interface IAssistantTurn {
   participantId: string
   responseToTurnId: string
   repliedText?: string
-  speechStreamId?: string
   status: 'wait-speaking' | 'generating-text' | 'generated-text' | 'generating-speech' | 'streaming-speech' | 'streamed-speech' | 'completed' | 'cancelled'
   startTime: number
   endTime?: number

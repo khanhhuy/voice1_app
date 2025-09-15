@@ -3,6 +3,7 @@ import { WebSocket } from "ws"
 import { ConversationState } from "../conversations/conversation_state"
 import { saveToDebug } from "@/services/utils"
 import type { IAssistantTurn } from "@/types"
+import type { IAssistantReply } from "@shared/shared_types"
 
 export class TalkToUserService {
   ws: WebSocket
@@ -16,11 +17,12 @@ export class TalkToUserService {
   }
 
   async startStreaming () {
-    this.ws.send(JSON.stringify({
+    const payload: IAssistantReply = {
       type: 'reply_start',
-      streamId: this.assistantTurn.speechStreamId,
       text: this.assistantTurn.repliedText
-    }))
+    }
+
+    this.ws.send(JSON.stringify(payload))
   }
 
   async streamSpeech (chunk: Buffer) {
@@ -28,9 +30,10 @@ export class TalkToUserService {
   }
 
   async endStreaming () {
-    this.ws.send(JSON.stringify({
+    const payload: IAssistantReply = {
       type: 'reply_end',
-      streamId: this.assistantTurn.speechStreamId,
-    }))
+    }
+
+    this.ws.send(JSON.stringify(payload))
   }
 }

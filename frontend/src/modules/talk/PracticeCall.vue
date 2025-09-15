@@ -16,7 +16,7 @@
             <div class="flex flex-col">
               <span class="text-sm text-gray-500 capitalize">{{ agent.name }}</span>
               <span class="text-sm text-gray-700 font-semibold">{{ agent.role }}</span>
-              <div class="text-sm text-gray-400 font-light italic mt-1">
+              <div class="text-sm text-sky-800 font-light italic mt-1 animate-pulse">
                 {{ isSpeaking ? 'Speaking...' : '' }}
               </div>
             </div>
@@ -36,8 +36,17 @@
           </div>
         </div>
         <div class="bg-white flex-1 rounded-lg">
-          <div class="text-sm text-gray-500 p-6">
-            Transcription will appear here
+          <div class="text-sm  p-6">
+            <span
+              v-show="!currentTranscription"
+              class="italic text-gray-400"
+            >
+              Transcription will appear here...
+            </span>
+            <span
+              v-show="currentTranscription"
+              class="text-gray-600 text-base"
+            > {{ currentTranscription }} </span>
           </div>
         </div>
       </div>
@@ -94,7 +103,7 @@ import { AGENTS, type IAgent } from './agents'
 import { usePageHeader } from '@/modules/header/usePageHeader'
 import { buildAudioChunk } from './buildAudioChunk'
 import Loading from '@/components/ui/Loading.vue'
-import { audioPlayingEvent } from './replyHandlerStream'
+import { audioPlayingEvent, replyEvent } from './replyHandlerStream'
 
 const route = useRoute()
 const { setTitle } = usePageHeader()!
@@ -109,6 +118,7 @@ const micReady = ref(false)
 let speakingInterval: ReturnType<typeof setInterval> | null = null
 let endSpeakingAt: number = 0
 const isSpeaking = ref(false)
+const currentTranscription = ref('')
 
 audioPlayingEvent.on((duration) => {
   if (!isSpeaking.value) {
@@ -128,7 +138,14 @@ audioPlayingEvent.on((duration) => {
   }
 
   isSpeaking.value = true
-  endSpeakingAt += (duration * 1000)
+  endSpeakingAt += duration * 1000
+})
+
+
+replyEvent.on((reply) => {
+  if (reply.type === 'reply_start') {
+    currentTranscription.value = reply.text || ''
+  }
 })
 
 async function handleAudioBuffer (audioBuffer: ArrayBuffer, processor: AudioProcessor, sessionId: string, sequence: number) {
@@ -200,8 +217,6 @@ async function stopSession () {
     status.value = 'not_started'
   }
 }
-
-
 
 onMounted(async () => {
   const a = AGENTS.find(a => a.name === route.params.agent)

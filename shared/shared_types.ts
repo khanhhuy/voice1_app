@@ -6,4 +6,9 @@ interface IUser {
   settings: object
 }
 
-export type { IUser }
+interface IAssistantReply {
+  type: 'reply_start' | 'reply_end'
+  text?: string
+}
+
+export type { IUser, IAssistantReply }

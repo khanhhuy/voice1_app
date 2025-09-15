@@ -1,20 +1,14 @@
 import { ref } from 'vue'
 import { createEventHook } from '@vueuse/core'
+import type { IAssistantReply } from '@shared/shared_types'
 
-interface StreamMetadata {
-  type: 'reply_start' | 'reply_end'
-  text?: string
-  streamId: string
-}
+const GLOBAL_BUFFER_MAP = new Map<string, { buffer: AudioBufferSourceNode, ended: boolean }>()
 
-export const GLOBAL_BUFFER_MAP = new Map<string, { buffer: AudioBufferSourceNode, ended: boolean }>()
-export const CAN_PLAY_AUDIO = ref(true)
+// TODO: should have a better way to pause audio
+const CAN_PLAY_AUDIO = ref(true)
 
-export const audioPlayingEvent = createEventHook<number>()
-
-function allowPlayback (state: boolean) { 
-  CAN_PLAY_AUDIO.value = state
-}
+const audioPlayingEvent = createEventHook<number>()
+const replyEvent = createEventHook<IAssistantReply>()
 
 class ReplyHandler {
   private audioContext: AudioContext
@@ -115,12 +109,13 @@ class ReplyHandler {
     }
   }
 
-  private handleSignal (msg: StreamMetadata) {
+  private handleSignal (msg: IAssistantReply) {
     if (msg.type === 'reply_start') {
-      // Reset timing for new stream
       this.nextStartTime = 0
     } else if (msg.type === 'reply_end') {
     }
+
+    replyEvent.trigger(msg)
   }
 
   async handleMessage (event: MessageEvent) {
@@ -128,7 +123,7 @@ class ReplyHandler {
 
     if (typeof data === 'string') {
       const msg = JSON.parse(data)
-      this.handleSignal(msg as StreamMetadata)
+      this.handleSignal(msg as IAssistantReply)
     } else {
       // Process binary audio data
       await this.processAudioChunk(data)
@@ -136,4 +131,4 @@ class ReplyHandler {
   }
 }
 
-export { ReplyHandler, allowPlayback }
+export { ReplyHandler, audioPlayingEvent, replyEvent }
