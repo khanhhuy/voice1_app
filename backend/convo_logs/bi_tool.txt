@@ -1,0 +1,625 @@
+This is a pretty good conversation I have with the assistant.
+---
+
+==> Transcription: hello can you hear me
+2025-09-15T16:56:53.261Z
+-- end turn at 2025-09-15T16:56:54.431Z
+--------------
+2025-09-15T16:56:55.012Z
+Assistant 🤖: assistant-1757955414432-0.8615603588276859
+ Hey! Yeah, I can hear you loud and clear.
+
+So... user interviews, right? What's bringing you here today - got one coming up or just trying to get better at them?
+Start streaming at
+2025-09-15T16:56:55.947Z
+-- speech start at 2025-09-15T16:57:07.347Z
+-- processing buffer at 2025-09-15T16:57:09.038Z
+-- speech start at 2025-09-15T16:57:09.248Z
+Whisper Groq took 583ms
+==> Transcription: yeah got 1 coming
+2025-09-15T16:57:09.629Z
+-- processing buffer at 2025-09-15T16:57:09.660Z
+-- speech start at 2025-09-15T16:57:10.101Z
+Whisper Groq took 524ms
+==> Transcription: tomorrow
+2025-09-15T16:57:10.185Z
+-- processing buffer at 2025-09-15T16:57:11.461Z
+-- speech start at 2025-09-15T16:57:11.559Z
+Whisper Groq took 432ms
+==> Transcription: and i need some
+2025-09-15T16:57:11.895Z
+-- processing buffer at 2025-09-15T16:57:12.075Z
+-- speech start at 2025-09-15T16:57:12.399Z
+Whisper Groq took 390ms
+-- processing buffer at 2025-09-15T16:57:13.028Z
+-- speech start at 2025-09-15T16:57:13.238Z
+Whisper Groq took 432ms
+-- processing buffer at 2025-09-15T16:57:14.399Z
+Whisper Groq took 494ms
+-- end turn at 2025-09-15T16:57:15.534Z
+--------------
+2025-09-15T16:57:16.260Z
+Assistant 🤖: assistant-1757955435535-0.0856601630528786
+ Ah, the pre-interview scramble - been there!
+
+Okay, so... what's the product and who are you talking to tomorrow? Just helps me tailor the advice, yeah?
+Start streaming at
+2025-09-15T16:57:17.331Z
+-- speech start at 2025-09-15T16:57:30.079Z
+-- processing buffer at 2025-09-15T16:57:30.608Z
+-- speech start at 2025-09-15T16:57:30.805Z
+Whisper Groq took 771ms
+-- processing buffer at 2025-09-15T16:57:31.969Z
+-- speech start at 2025-09-15T16:57:32.078Z
+Whisper Groq took 535ms
+-- processing buffer at 2025-09-15T16:57:32.609Z
+-- speech start at 2025-09-15T16:57:32.918Z
+Whisper Groq took 511ms
+-- processing buffer at 2025-09-15T16:57:34.081Z
+-- speech start at 2025-09-15T16:57:34.083Z
+Whisper Groq took 399ms
+-- processing buffer at 2025-09-15T16:57:35.868Z
+-- speech start at 2025-09-15T16:57:36.078Z
+Whisper Groq took 528ms
+==> Transcription: business intelligence tools
+2025-09-15T16:57:36.397Z
+-- processing buffer at 2025-09-15T16:57:37.359Z
+-- speech start at 2025-09-15T16:57:37.677Z
+Whisper Groq took 814ms
+-- processing buffer at 2025-09-15T16:57:38.616Z
+-- speech start at 2025-09-15T16:57:38.918Z
+Whisper Groq took 507ms
+-- processing buffer at 2025-09-15T16:57:39.561Z
+-- speech start at 2025-09-15T16:57:40.068Z
+Whisper Groq took 664ms
+-- processing buffer at 2025-09-15T16:57:40.938Z
+-- speech start at 2025-09-15T16:57:41.145Z
+Whisper Groq took 409ms
+-- processing buffer at 2025-09-15T16:57:45.148Z
+Whisper Groq took 496ms
+==> Transcription: tool we mostly sell to b2b customers
+2025-09-15T16:57:45.649Z
+-- end turn at 2025-09-15T16:57:46.676Z
+--------------
+2025-09-15T16:57:47.342Z
+Assistant 🤖: assistant-1757955466676-0.14254129866479848
+ Hmm, that's... a bit broad.
+
+So, like, dashboards for execs? Self-serve stuff for analysts? Who specifically did the team book you with tomorrow—any idea of their role or what they’re hoping to see?
+Start streaming at
+2025-09-15T16:57:48.279Z
+-- speech start at 2025-09-15T16:58:10.968Z
+-- processing buffer at 2025-09-15T16:58:14.718Z
+-- speech start at 2025-09-15T16:58:14.721Z
+Whisper Groq took 883ms
+==> Transcription: customer so they mostly data analyst who
+2025-09-15T16:58:15.601Z
+-- processing buffer at 2025-09-15T16:58:15.602Z
+-- speech start at 2025-09-15T16:58:15.774Z
+Whisper Groq took 630ms
+-- processing buffer at 2025-09-15T16:58:17.654Z
+-- speech start at 2025-09-15T16:58:17.662Z
+Whisper Groq took 1006ms
+==> Transcription: like looking for
+2025-09-15T16:58:18.662Z
+-- processing buffer at 2025-09-15T16:58:20.656Z
+-- speech start at 2025-09-15T16:58:20.867Z
+-- speech start at 2025-09-15T16:58:21.387Z
+Whisper Groq took 897ms
+==> Transcription: like a business intelligence tool for their own
+2025-09-15T16:58:21.553Z
+-- processing buffer at 2025-09-15T16:58:21.554Z
+Whisper Groq took 513ms
+==> Transcription: uh
+2025-09-15T16:58:22.068Z
+-- processing buffer at 2025-09-15T16:58:22.447Z
+Whisper Groq took 643ms
+==> Transcription: organization
+2025-09-15T16:58:23.091Z
+-- speech start at 2025-09-15T16:58:23.187Z
+-- processing buffer at 2025-09-15T16:58:23.897Z
+Whisper Groq took 484ms
+-- speech start at 2025-09-15T16:58:24.415Z
+-- processing buffer at 2025-09-15T16:58:31.188Z
+-- speech start at 2025-09-15T16:58:31.199Z
+Whisper Groq took 1240ms
+==> Transcription: you know that they have very they had a broad knowledge about different bi tools in the
+2025-09-15T16:58:32.428Z
+-- processing buffer at 2025-09-15T16:58:32.428Z
+-- speech start at 2025-09-15T16:58:32.658Z
+Whisper Groq took 597ms
+==> Transcription: market such as
+2025-09-15T16:58:33.026Z
+-- processing buffer at 2025-09-15T16:58:33.387Z
+-- speech start at 2025-09-15T16:58:33.485Z
+Whisper Groq took 560ms
+==> Transcription: looker
+2025-09-15T16:58:33.947Z
+-- processing buffer at 2025-09-15T16:58:35.488Z
+-- speech start at 2025-09-15T16:58:35.491Z
+Whisper Groq took 724ms
+==> Transcription: power bi or holistic
+2025-09-15T16:58:36.212Z
+-- processing buffer at 2025-09-15T16:58:36.212Z
+Whisper Groq took 806ms
+-- end turn at 2025-09-15T16:58:37.294Z
+--------------
+2025-09-15T16:58:38.025Z
+Assistant 🤖: assistant-1757955517295-0.5702514055580197
+ Ah gotcha, so they're a savvy analyst who's probably tried the big names and is shopping around - those folks can be... a bit skeptical at first.
+
+Okay, so with someone like that, I'd lean into the "help me understand your current workflow" angle rather than pitching features, yeah?
+Start streaming at
+2025-09-15T16:58:38.917Z
+-- speech start at 2025-09-15T16:58:58.697Z
+-- processing buffer at 2025-09-15T16:58:59.015Z
+-- speech start at 2025-09-15T16:58:59.217Z
+Whisper Groq took 755ms
+-- processing buffer at 2025-09-15T16:59:00.156Z
+Whisper Groq took 500ms
+==> Transcription: but why
+2025-09-15T16:59:00.657Z
+-- end turn at 2025-09-15T16:59:01.787Z
+--------------
+2025-09-15T16:59:02.600Z
+Assistant 🤖: assistant-1757955541787-0.8321925950721278
+ Because they’ve already demo’d half the market—if you dive into features they’ll mentally check off “yeah, Power BI does that too” and tune out.
+
+But if you get them talking about the annoying parts of their day (waiting on data refreshes, explaining dashboards to clueless stakeholders, etc.) they’ll actually reveal the gaps your thing could fill.
+Start streaming at
+2025-09-15T16:59:04.199Z
+-- speech start at 2025-09-15T16:59:27.657Z
+-- processing buffer at 2025-09-15T16:59:27.974Z
+-- speech start at 2025-09-15T16:59:28.086Z
+Whisper Groq took 865ms
+-- end turn at 2025-09-15T16:59:29.110Z
+-- processing buffer at 2025-09-15T16:59:29.977Z
+-- speech start at 2025-09-15T16:59:30.187Z
+Whisper Groq took 656ms
+==> Transcription: no that makes sense that makes sense
+2025-09-15T16:59:30.634Z
+-- processing buffer at 2025-09-15T16:59:33.156Z
+-- speech start at 2025-09-15T16:59:33.265Z
+-- speech start at 2025-09-15T16:59:33.792Z
+Whisper Groq took 931ms
+==> Transcription: so like different strategy for like different
+2025-09-15T16:59:34.089Z
+-- processing buffer at 2025-09-15T16:59:34.089Z
+Whisper Groq took 583ms
+-- processing buffer at 2025-09-15T16:59:34.939Z
+-- speech start at 2025-09-15T16:59:35.261Z
+Whisper Groq took 447ms
+==> Transcription: buyers right
+2025-09-15T16:59:35.388Z
+-- processing buffer at 2025-09-15T16:59:37.768Z
+-- speech start at 2025-09-15T16:59:37.771Z
+Whisper Groq took 691ms
+==> Transcription: i mean these are the veteran
+2025-09-15T16:59:38.460Z
+-- processing buffer at 2025-09-15T16:59:39.007Z
+-- speech start at 2025-09-15T16:59:39.316Z
+Whisper Groq took 1193ms
+==> Transcription: and very senior
+2025-09-15T16:59:40.200Z
+-- processing buffer at 2025-09-15T16:59:40.468Z
+Whisper Groq took 1064ms
+==> Transcription: people in the company
+2025-09-15T16:59:41.532Z
+-- end turn at 2025-09-15T16:59:42.563Z
+--------------
+2025-09-15T16:59:43.979Z
+Assistant 🤖: assistant-1757955582563-0.7507091015664324
+ Exactly, yeah—you shift from “let me show you” to “walk me through the last time you had to…”
+
+What feels trickier for you tomorrow: getting them to open up or steering them once they start rambling about feature #37 they want?
+Start streaming at
+2025-09-15T16:59:45.055Z
+-- speech start at 2025-09-15T16:59:59.561Z
+-- processing buffer at 2025-09-15T16:59:59.777Z
+-- speech start at 2025-09-15T17:00:00.086Z
+Whisper Groq took 796ms
+-- processing buffer at 2025-09-15T17:00:00.575Z
+-- speech start at 2025-09-15T17:00:00.715Z
+-- speech start at 2025-09-15T17:00:01.353Z
+Whisper Groq took 972ms
+==> Transcription: right
+2025-09-15T17:00:01.549Z
+-- processing buffer at 2025-09-15T17:00:01.549Z
+Whisper Groq took 564ms
+-- processing buffer at 2025-09-15T17:00:02.115Z
+-- speech start at 2025-09-15T17:00:02.196Z
+Whisper Groq took 612ms
+==> Transcription: i think that
+2025-09-15T17:00:02.729Z
+-- processing buffer at 2025-09-15T17:00:03.586Z
+-- speech start at 2025-09-15T17:00:04.236Z
+Whisper Groq took 835ms
+==> Transcription: mean they
+2025-09-15T17:00:04.422Z
+-- processing buffer at 2025-09-15T17:00:04.766Z
+-- speech start at 2025-09-15T17:00:04.965Z
+Whisper Groq took 520ms
+==> Transcription: then i guess
+2025-09-15T17:00:05.287Z
+-- processing buffer at 2025-09-15T17:00:05.694Z
+-- speech start at 2025-09-15T17:00:05.794Z
+Whisper Groq took 618ms
+-- processing buffer at 2025-09-15T17:00:07.817Z
+-- speech start at 2025-09-15T17:00:08.026Z
+-- speech start at 2025-09-15T17:00:08.346Z
+Whisper Groq took 545ms
+==> Transcription: they mostly know about different
+2025-09-15T17:00:08.363Z
+-- processing buffer at 2025-09-15T17:00:08.363Z
+Whisper Groq took 509ms
+==> Transcription: tools
+2025-09-15T17:00:08.873Z
+-- processing buffer at 2025-09-15T17:00:09.506Z
+-- speech start at 2025-09-15T17:00:09.607Z
+Whisper Groq took 599ms
+==> Transcription: in the market
+2025-09-15T17:00:10.105Z
+-- processing buffer at 2025-09-15T17:00:11.072Z
+-- speech start at 2025-09-15T17:00:11.175Z
+Whisper Groq took 563ms
+==> Transcription: and like
+2025-09-15T17:00:11.635Z
+-- processing buffer at 2025-09-15T17:00:12.236Z
+-- speech start at 2025-09-15T17:00:12.556Z
+Whisper Groq took 506ms
+==> Transcription: i think i would look
+2025-09-15T17:00:12.744Z
+-- processing buffer at 2025-09-15T17:00:13.068Z
+-- speech start at 2025-09-15T17:00:13.278Z
+Whisper Groq took 517ms
+==> Transcription: for
+2025-09-15T17:00:13.590Z
+-- processing buffer at 2025-09-15T17:00:13.807Z
+Whisper Groq took 503ms
+==> Transcription: i mean
+2025-09-15T17:00:14.310Z
+-- speech start at 2025-09-15T17:00:14.534Z
+-- processing buffer at 2025-09-15T17:00:15.995Z
+Whisper Groq took 556ms
+==> Transcription: try to ask about their products
+2025-09-15T17:00:16.553Z
+-- speech start at 2025-09-15T17:00:16.624Z
+-- processing buffer at 2025-09-15T17:00:17.161Z
+-- speech start at 2025-09-15T17:00:17.165Z
+-- speech start at 2025-09-15T17:00:17.596Z
+Whisper Groq took 441ms
+==> Transcription: current
+2025-09-15T17:00:17.602Z
+-- processing buffer at 2025-09-15T17:00:17.602Z
+Whisper Groq took 484ms
+-- processing buffer at 2025-09-15T17:00:18.107Z
+-- speech start at 2025-09-15T17:00:18.214Z
+Whisper Groq took 390ms
+-- processing buffer at 2025-09-15T17:00:19.261Z
+-- speech start at 2025-09-15T17:00:19.561Z
+Whisper Groq took 467ms
+==> Transcription: ywd pick
+2025-09-15T17:00:19.729Z
+-- processing buffer at 2025-09-15T17:00:22.386Z
+-- speech start at 2025-09-15T17:00:22.796Z
+Whisper Groq took 616ms
+==> Transcription: like the most expensive tool in the market and
+2025-09-15T17:00:23.003Z
+-- processing buffer at 2025-09-15T17:00:23.861Z
+Whisper Groq took 487ms
+-- speech start at 2025-09-15T17:00:24.602Z
+-- processing buffer at 2025-09-15T17:00:27.537Z
+-- speech start at 2025-09-15T17:00:27.743Z
+Whisper Groq took 484ms
+==> Transcription: things like that too like maybe they have some
+2025-09-15T17:00:28.022Z
+-- processing buffer at 2025-09-15T17:00:28.168Z
+-- speech start at 2025-09-15T17:00:28.478Z
+Whisper Groq took 569ms
+-- processing buffer at 2025-09-15T17:00:30.168Z
+Whisper Groq took 506ms
+==> Transcription: they have some like
+2025-09-15T17:00:30.675Z
+-- speech start at 2025-09-15T17:00:31.006Z
+-- processing buffer at 2025-09-15T17:00:32.786Z
+Whisper Groq took 560ms
+==> Transcription: problem issue that they
+2025-09-15T17:00:33.347Z
+-- speech start at 2025-09-15T17:00:33.426Z
+-- processing buffer at 2025-09-15T17:00:33.636Z
+Whisper Groq took 522ms
+==> Transcription: uh
+2025-09-15T17:00:34.158Z
+-- speech start at 2025-09-15T17:00:34.593Z
+-- processing buffer at 2025-09-15T17:00:35.746Z
+Whisper Groq took 959ms
+==> Transcription: have not shared with us
+2025-09-15T17:00:36.705Z
+-- end turn at 2025-09-15T17:00:37.807Z
+--------------
+2025-09-15T17:00:38.726Z
+Assistant 🤖: assistant-1757955637808-0.9840428157864833
+ Hmm, yeah—sometimes the pricier tools leave scabs they don’t brag about.
+
+How about starting with: “So what pushed you to kick the tires on something new?”—often surfaces the hidden gotcha (slow support, crazy licensing, etc.) without you guessing.
+Start streaming at
+2025-09-15T17:00:40.752Z
+-- speech start at 2025-09-15T17:00:58.275Z
+-- processing buffer at 2025-09-15T17:00:59.555Z
+-- speech start at 2025-09-15T17:00:59.657Z
+Whisper Groq took 810ms
+-- end turn at 2025-09-15T17:01:00.716Z
+-- processing buffer at 2025-09-15T17:01:03.650Z
+-- speech start at 2025-09-15T17:01:03.664Z
+Whisper Groq took 575ms
+==> Transcription: i think that the most important thing is to ask them about their
+2025-09-15T17:01:04.228Z
+-- processing buffer at 2025-09-15T17:01:04.715Z
+-- speech start at 2025-09-15T17:01:04.816Z
+Whisper Groq took 580ms
+==> Transcription: i mean organization
+2025-09-15T17:01:05.296Z
+-- processing buffer at 2025-09-15T17:01:05.354Z
+-- speech start at 2025-09-15T17:01:05.465Z
+Whisper Groq took 455ms
+-- processing buffer at 2025-09-15T17:01:05.987Z
+-- speech start at 2025-09-15T17:01:06.087Z
+Whisper Groq took 538ms
+==> Transcription: sorry
+2025-09-15T17:01:06.525Z
+-- processing buffer at 2025-09-15T17:01:08.296Z
+-- speech start at 2025-09-15T17:01:08.405Z
+Whisper Groq took 907ms
+==> Transcription: organizational structure
+2025-09-15T17:01:09.204Z
+-- processing buffer at 2025-09-15T17:01:09.204Z
+-- speech start at 2025-09-15T17:01:09.336Z
+Whisper Groq took 494ms
+==> Transcription: so like to do
+2025-09-15T17:01:09.699Z
+-- processing buffer at 2025-09-15T17:01:12.376Z
+-- speech start at 2025-09-15T17:01:12.594Z
+Whisper Groq took 906ms
+==> Transcription: to like understand their scope
+2025-09-15T17:01:13.282Z
+-- processing buffer at 2025-09-15T17:01:17.546Z
+-- speech start at 2025-09-15T17:01:17.645Z
+Whisper Groq took 957ms
+==> Transcription: the total number of users that they would need
+2025-09-15T17:01:18.504Z
+-- processing buffer at 2025-09-15T17:01:19.236Z
+-- speech start at 2025-09-15T17:01:19.439Z
+Whisper Groq took 598ms
+==> Transcription: and how
+2025-09-15T17:01:19.836Z
+-- processing buffer at 2025-09-15T17:01:23.225Z
+-- speech start at 2025-09-15T17:01:23.537Z
+Whisper Groq took 502ms
+==> Transcription: like how the company instructors so that we can
+2025-09-15T17:01:23.728Z
+-- processing buffer at 2025-09-15T17:01:26.176Z
+Whisper Groq took 624ms
+==> Transcription: understand like how the product is used in the company
+2025-09-15T17:01:26.803Z
+-- end turn at 2025-09-15T17:01:27.834Z
+--------------
+2025-09-15T17:01:28.598Z
+Assistant 🤖: assistant-1757955687834-0.5172219820419932
+ Makes sense, yeah—scope and head-count drive pricing, but... straight-up asking “how many licenses?” can feel sales-y.
+
+How about: “Who else besides you usually dives into these dashboards?”—keeps it conversational, and the org map usually spills out naturally.
+Start streaming at
+2025-09-15T17:01:29.916Z
+-- speech start at 2025-09-15T17:01:49.204Z
+-- processing buffer at 2025-09-15T17:01:50.464Z
+-- speech start at 2025-09-15T17:01:50.887Z
+Whisper Groq took 810ms
+==> Transcription: yeah that a good way
+2025-09-15T17:01:51.278Z
+-- processing buffer at 2025-09-15T17:01:51.635Z
+-- speech start at 2025-09-15T17:01:51.742Z
+Whisper Groq took 560ms
+-- processing buffer at 2025-09-15T17:01:53.943Z
+Whisper Groq took 543ms
+==> Transcription: i think that a good way to put it
+2025-09-15T17:01:54.487Z
+-- end turn at 2025-09-15T17:01:55.551Z
+--------------
+-- speech start at 2025-09-15T17:01:55.857Z
+2025-09-15T17:01:56.328Z
+Assistant 🤖: assistant-1757955715551-0.2998254156527047
+ Cool, glad that clicks.
+
+One more quick one—are you planning to record the call or just take notes? Analysts can get skittish if they feel you’re mining evidence for sales, so worth flagging it up front, yeah?
+Start streaming at
+2025-09-15T17:01:57.304Z
+-- processing buffer at 2025-09-15T17:01:57.915Z
+Whisper Groq took 654ms
+==> Transcription: anything else that you want to add
+2025-09-15T17:01:58.572Z
+-- speech start at 2025-09-15T17:02:16.276Z
+-- processing buffer at 2025-09-15T17:02:17.976Z
+-- speech start at 2025-09-15T17:02:18.084Z
+Whisper Groq took 843ms
+==> Transcription: yeah yeah we will recap
+2025-09-15T17:02:18.819Z
+-- processing buffer at 2025-09-15T17:02:21.309Z
+-- speech start at 2025-09-15T17:02:21.505Z
+Whisper Groq took 611ms
+==> Transcription: record the meeting i mean that our policy and
+2025-09-15T17:02:21.921Z
+-- processing buffer at 2025-09-15T17:02:22.126Z
+-- speech start at 2025-09-15T17:02:22.235Z
+Whisper Groq took 583ms
+==> Transcription: i think
+2025-09-15T17:02:22.710Z
+-- processing buffer at 2025-09-15T17:02:23.534Z
+-- speech start at 2025-09-15T17:02:23.736Z
+Whisper Groq took 678ms
+==> Transcription: i am surely
+2025-09-15T17:02:24.212Z
+-- processing buffer at 2025-09-15T17:02:25.326Z
+-- speech start at 2025-09-15T17:02:25.329Z
+Whisper Groq took 608ms
+==> Transcription: that i need to tell them
+2025-09-15T17:02:25.936Z
+-- processing buffer at 2025-09-15T17:02:25.936Z
+-- speech start at 2025-09-15T17:02:25.974Z
+Whisper Groq took 447ms
+==> Transcription: about it
+2025-09-15T17:02:26.384Z
+-- processing buffer at 2025-09-15T17:02:26.384Z
+-- speech start at 2025-09-15T17:02:26.497Z
+Whisper Groq took 523ms
+==> Transcription: that
+2025-09-15T17:02:26.907Z
+-- processing buffer at 2025-09-15T17:02:27.742Z
+Whisper Groq took 600ms
+==> Transcription: at the beginning of the meeting
+2025-09-15T17:02:28.344Z
+-- end turn at 2025-09-15T17:02:29.492Z
+--------------
+2025-09-15T17:02:30.375Z
+Assistant 🤖: assistant-1757955749492-0.30408799688741506
+ Exactly—just drop it in the agenda bit: “Mind if we record so I don’t miss anything? Only used internally.”
+
+Quickie tip: if they hesitate, offer to stop the recording any time; usually calms the “big-brother” worry.
+Start streaming at
+2025-09-15T17:02:31.491Z
+-- speech start at 2025-09-15T17:02:44.833Z
+-- processing buffer at 2025-09-15T17:02:45.034Z
+-- speech start at 2025-09-15T17:02:45.346Z
+Whisper Groq took 662ms
+-- processing buffer at 2025-09-15T17:02:45.884Z
+-- speech start at 2025-09-15T17:02:45.888Z
+Whisper Groq took 380ms
+==> Transcription: do you mean big picture
+2025-09-15T17:02:46.265Z
+-- processing buffer at 2025-09-15T17:02:46.615Z
+-- speech start at 2025-09-15T17:02:46.714Z
+Whisper Groq took 466ms
+==> Transcription: brother
+2025-09-15T17:02:47.082Z
+-- processing buffer at 2025-09-15T17:02:47.082Z
+Whisper Groq took 436ms
+-- end turn at 2025-09-15T17:02:48.175Z
+--------------
+2025-09-15T17:02:48.892Z
+Assistant 🤖: assistant-1757955768176-0.01765967637437038
+ Nah, just the old “we’re watching you” vibe—people hear “recorded” and worry their boss will see every gripe they air. Saying it’s only for note-taking and they can pause anytime usually kills that fear.
+Start streaming at
+2025-09-15T17:02:50.565Z
+-- speech start at 2025-09-15T17:03:06.456Z
+-- processing buffer at 2025-09-15T17:03:06.769Z
+Whisper Groq took 900ms
+-- speech start at 2025-09-15T17:03:07.705Z
+-- processing buffer at 2025-09-15T17:03:08.125Z
+-- speech start at 2025-09-15T17:03:08.444Z
+Whisper Groq took 612ms
+-- processing buffer at 2025-09-15T17:03:08.965Z
+-- speech start at 2025-09-15T17:03:09.595Z
+Whisper Groq took 847ms
+-- processing buffer at 2025-09-15T17:03:10.125Z
+-- speech start at 2025-09-15T17:03:10.223Z
+Whisper Groq took 554ms
+-- processing buffer at 2025-09-15T17:03:11.155Z
+-- speech start at 2025-09-15T17:03:11.573Z
+Whisper Groq took 708ms
+==> Transcription: let say
+2025-09-15T17:03:11.863Z
+-- processing buffer at 2025-09-15T17:03:12.104Z
+-- speech start at 2025-09-15T17:03:12.315Z
+Whisper Groq took 783ms
+==> Transcription: that
+2025-09-15T17:03:12.887Z
+-- processing buffer at 2025-09-15T17:03:13.795Z
+-- speech start at 2025-09-15T17:03:13.912Z
+Whisper Groq took 719ms
+==> Transcription: i finished my
+2025-09-15T17:03:14.515Z
+-- processing buffer at 2025-09-15T17:03:15.163Z
+-- speech start at 2025-09-15T17:03:15.713Z
+Whisper Groq took 693ms
+==> Transcription: demo with them
+2025-09-15T17:03:15.857Z
+-- processing buffer at 2025-09-15T17:03:16.445Z
+-- speech start at 2025-09-15T17:03:16.865Z
+Whisper Groq took 742ms
+==> Transcription: and
+2025-09-15T17:03:17.187Z
+-- processing buffer at 2025-09-15T17:03:17.923Z
+-- speech start at 2025-09-15T17:03:17.926Z
+Whisper Groq took 970ms
+==> Transcription: how
+2025-09-15T17:03:18.893Z
+-- processing buffer at 2025-09-15T17:03:18.966Z
+-- speech start at 2025-09-15T17:03:19.295Z
+Whisper Groq took 884ms
+==> Transcription: can i like
+2025-09-15T17:03:19.851Z
+-- processing buffer at 2025-09-15T17:03:20.345Z
+-- speech start at 2025-09-15T17:03:20.452Z
+Whisper Groq took 707ms
+==> Transcription: ask for
+2025-09-15T17:03:21.052Z
+-- processing buffer at 2025-09-15T17:03:22.244Z
+-- speech start at 2025-09-15T17:03:22.573Z
+Whisper Groq took 1058ms
+==> Transcription: how can i follow up them like
+2025-09-15T17:03:23.303Z
+-- processing buffer at 2025-09-15T17:03:24.486Z
+-- speech start at 2025-09-15T17:03:24.702Z
+Whisper Groq took 790ms
+==> Transcription: ask for the next meeting
+2025-09-15T17:03:25.278Z
+-- processing buffer at 2025-09-15T17:03:25.278Z
+-- speech start at 2025-09-15T17:03:25.434Z
+Whisper Groq took 817ms
+-- processing buffer at 2025-09-15T17:03:26.608Z
+Whisper Groq took 725ms
+==> Transcription: something like that
+2025-09-15T17:03:27.334Z
+-- end turn at 2025-09-15T17:03:28.534Z
+--------------
+2025-09-15T17:03:29.828Z
+Assistant 🤖: assistant-1757955808535-0.773181623632015
+ Keep it light: “Anything we didn’t cover that you’d want to dig into together?” If they perk up, just suggest, “How about we book 30 mins next week so you can poke around the real data—Thursday or Friday better?”
+Start streaming at
+2025-09-15T17:03:31.088Z
+-- speech start at 2025-09-15T17:03:45.659Z
+-- processing buffer at 2025-09-15T17:03:45.974Z
+-- speech start at 2025-09-15T17:03:46.292Z
+-- speech start at 2025-09-15T17:03:46.494Z
+Whisper Groq took 810ms
+==> Transcription: um
+2025-09-15T17:03:46.784Z
+-- processing buffer at 2025-09-15T17:03:46.784Z
+Whisper Groq took 611ms
+==> Transcription: the
+2025-09-15T17:03:47.397Z
+-- processing buffer at 2025-09-15T17:03:48.184Z
+-- speech start at 2025-09-15T17:03:48.295Z
+Whisper Groq took 442ms
+==> Transcription: that a little bit too casual
+2025-09-15T17:03:48.626Z
+-- processing buffer at 2025-09-15T17:03:48.924Z
+-- speech start at 2025-09-15T17:03:49.025Z
+Whisper Groq took 506ms
+-- processing buffer at 2025-09-15T17:03:49.885Z
+Whisper Groq took 588ms
+==> Transcription: do not you think
+2025-09-15T17:03:50.474Z
+-- end turn at 2025-09-15T17:03:51.634Z
+--------------
+2025-09-15T17:03:52.704Z
+Assistant 🤖: assistant-1757955831634-0.6435627541496542
+ Fair point—match their tone. You could try: “Would it help to schedule a deeper walk-through with your team next week? I’ve got Thursday or Friday morning open—either work for you?”
+Start streaming at
+2025-09-15T17:03:54.074Z
+-- speech start at 2025-09-15T17:04:07.580Z
+-- processing buffer at 2025-09-15T17:04:07.889Z
+********** Conversation ended ********** user:  1 session:  3403920324
+WebSocket connection closed
+Whisper Groq took 806ms
+==> Transcription: okay
+2025-09-15T17:04:08.696Z

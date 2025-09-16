@@ -48,7 +48,6 @@ export class TranscriptionService {
   }
 
   private async processBuffer(buffer: Buffer) {
-    console.log('-- processing buffer at', new Date().toISOString())
     const transcriptionEvent: ITranscriptionEvent = {
       type: 'transcription',
       status: 'new',

@@ -89,7 +89,7 @@ export class AudioProcessor {
   handleMessage(message: IAudioMessage) {
     if (message.type === 'speech_start') {
       this.startTs = message.ts
-      console.log('-- speech start at', new Date().toISOString())
+      // console.log('-- speech start at', new Date().toISOString())
       this.onTranscription({
         type: 'start-speech',
       })

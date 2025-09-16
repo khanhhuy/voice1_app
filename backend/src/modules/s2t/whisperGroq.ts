@@ -61,7 +61,7 @@ export class WhisperGroq {
     // Add WAV header to raw audio data
     const wavBuffer = addWavHeader(audioBuffer);
     
-    const start = Date.now()
+    // const start = Date.now()
     const transcription: ITranscriptionFull = await groq.audio.transcriptions.create({
       file: await toFile(wavBuffer, 'audio.wav'),
       model,
@@ -71,9 +71,9 @@ export class WhisperGroq {
       temperature,
     }) as unknown as ITranscriptionFull;
 
-    const end = Date.now()
+    // const end = Date.now()
     // Latency: ~1s when the context is 20 words
-    console.log(`Whisper Groq took ${end - start}ms`)
+    // console.log(`Whisper Groq took ${end - start}ms`)
     
 
     const filteredSegments = filterOutNonSpeech(transcription.segments || [])
