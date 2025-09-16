@@ -45,7 +45,7 @@
             </span>
             <span
               v-show="currentTranscription"
-              class="text-gray-600 text-base"
+              class="text-gray-400 text-sm"
             > {{ currentTranscription }} </span>
           </div>
         </div>

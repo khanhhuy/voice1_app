@@ -62,7 +62,7 @@ async function llmCompletion(messages: IMessage[]): Promise<string> {
   const msg: IMessage[] = [
     {
       role: 'system',
-      content: GEMINI_PROMPT_1,
+      content: MAE_PROMPT,
     },
     ...messages
   ]
