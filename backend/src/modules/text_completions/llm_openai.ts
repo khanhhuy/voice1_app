@@ -1,10 +1,9 @@
-import { Groq } from 'groq-sdk';
+import OpenAI from 'openai';
 import { compact, flatten } from 'lodash';
 import { IAssistantTurn, IConversation, IUserTurn } from '@/types';
-import {  PROMPT } from './mae_prompt';
-// import { GEMINI_PROMPT_1 as PROMPT } from './gemini_prompt1';
+import { PROMPT } from './mae_prompt';
 
-const groq = new Groq();
+const openai = new OpenAI();
 
 interface IMessage {
   role: 'user' | 'assistant' | 'system'
@@ -60,26 +59,17 @@ async function llmCompletion(messages: IMessage[]): Promise<string> {
     ...messages
   ]
 
-  const stream = await groq.chat.completions.create({
-    "messages": msg,
-    "model": "moonshotai/kimi-k2-instruct", // "deepseek-r1-distill-llama-70b", // "moonshotai/kimi-k2-instruct", // "openai/gpt-oss-120b",
-    // "reasoning_effort": "medium",
-    // "reasoning_format": "hidden",
-    "temperature": 1,
-    "max_completion_tokens": 4096,
-    "top_p": 1,
-    "stream": true,
-    "stop": null
+  const completion = await openai.chat.completions.create({
+    messages: msg,
+    model: 'gpt-5-mini-2025-08-07',
+    temperature: 1,
+    max_completion_tokens: 4096,
+    top_p: 1,
+    stream: false,
+    stop: null
   });
 
-  let text = ''
-
-  for await (const chunk of stream) {
-    // Print the completion returned by the LLM.
-    text += chunk.choices[0]?.delta?.content || ""
-  }
-
-  return text
+  return completion.choices[0]?.message?.content || ''
 }
 
 async function generateText(conversation: IConversation, forUserTurnId: string): Promise<{ text: string, responseToTurnId: string }> {

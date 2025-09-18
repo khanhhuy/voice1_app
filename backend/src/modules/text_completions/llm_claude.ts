@@ -1,13 +1,12 @@
-import { Groq } from 'groq-sdk';
+import Anthropic from '@anthropic-ai/sdk';
 import { compact, flatten } from 'lodash';
 import { IAssistantTurn, IConversation, IUserTurn } from '@/types';
-import {  PROMPT } from './mae_prompt';
-// import { GEMINI_PROMPT_1 as PROMPT } from './gemini_prompt1';
+import { PROMPT } from './mae_prompt';
 
-const groq = new Groq();
+const client = new Anthropic();
 
 interface IMessage {
-  role: 'user' | 'assistant' | 'system'
+  role: 'user' | 'assistant'
   content: string
 }
 
@@ -52,34 +51,32 @@ function buildMessagesFromConversation(conversation: IConversation): IMessage[] 
 }
 
 async function llmCompletion(messages: IMessage[]): Promise<string> {
-  const msg: IMessage[] = [
-    {
-      role: 'system',
-      content: PROMPT,
-    },
-    ...messages
-  ]
+  const msg: IMessage[] = [...messages]
 
-  const stream = await groq.chat.completions.create({
-    "messages": msg,
-    "model": "moonshotai/kimi-k2-instruct", // "deepseek-r1-distill-llama-70b", // "moonshotai/kimi-k2-instruct", // "openai/gpt-oss-120b",
-    // "reasoning_effort": "medium",
-    // "reasoning_format": "hidden",
-    "temperature": 1,
-    "max_completion_tokens": 4096,
-    "top_p": 1,
-    "stream": true,
-    "stop": null
-  });
+  const promise: Promise<string> = new Promise((resolve, reject) => {
+    let fullText = ''
 
-  let text = ''
+    client.messages.stream({
+      system: [
+        {
+          type: 'text',
+          text: PROMPT,
+          cache_control: { type: 'ephemeral' }
+        }
+      ],
+      messages: msg,
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 4096,
+    }).on('text', (text) => {
+      fullText += text
+    }).on('end', () => {
+      resolve(fullText)
+    }).on('error', (error) => {
+      reject(error)
+    })
+  })
 
-  for await (const chunk of stream) {
-    // Print the completion returned by the LLM.
-    text += chunk.choices[0]?.delta?.content || ""
-  }
-
-  return text
+  return promise
 }
 
 async function generateText(conversation: IConversation, forUserTurnId: string): Promise<{ text: string, responseToTurnId: string }> {

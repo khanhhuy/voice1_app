@@ -2,6 +2,7 @@ lockfileVersion: 5.4
 
 specifiers:
   '@algorithm.ts/lcs': ^4.0.5
+  '@anthropic-ai/sdk': ^0.62.0
   '@modelcontextprotocol/sdk': ^1.15.0
   '@tsconfig/node20': ^20.1.4
   '@types/cors': ^2.8.17
@@ -41,6 +42,7 @@ specifiers:
 
 dependencies:
   '@algorithm.ts/lcs': 4.0.5
+  '@anthropic-ai/sdk': 0.62.0
   '@modelcontextprotocol/sdk': 1.15.0
   axios: 1.10.0
   cors: 2.8.5
@@ -84,6 +86,11 @@ packages:
 
   /@algorithm.ts/lcs/4.0.5:
     resolution: {integrity: sha512-D01bfwAw7ambpU+qc0Bax/E86qGiMEqECHMjOcY8pO9tVYmf+woTqLMvBdtcjSnGQCaP+Ah4Zf7ownT0Zthtqg==}
+    dev: false
+
+  /@anthropic-ai/sdk/0.62.0:
+    resolution: {integrity: sha512-gT2VFKX0gSp7KJNlav/vzRFjJOPYDZxCJRx7MYUc+fqURc5aS6OI/UJeD2KytJkjsIWv0OOwH1ePc1S5QE2GZw==}
+    hasBin: true
     dev: false
 
   /@cspotcode/source-map-support/0.8.1:

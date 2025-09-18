@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@algorithm.ts/lcs": "^4.0.5",
+    "@anthropic-ai/sdk": "^0.62.0",
     "@modelcontextprotocol/sdk": "^1.15.0",
     "axios": "^1.7.9",
     "cors": "^2.8.5",

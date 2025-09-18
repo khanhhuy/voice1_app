@@ -17,6 +17,7 @@
               <span class="text-sm text-gray-500 capitalize">{{ agent.name }}</span>
               <span class="text-sm text-gray-700 font-semibold">{{ agent.role }}</span>
               <div class="text-sm text-sky-800 font-light italic mt-1 animate-pulse">
+                listening...
                 {{ isSpeaking ? 'Speaking...' : '' }}
               </div>
             </div>
@@ -68,15 +69,36 @@
           >
             <Loading text="Connecting..." />
           </Button>
-          <Button
+          <div
             v-show="status === 'recording'"
-            class="px-12 bg-red-500 hover:bg-red-600 cursor-pointer"
-            size="sm"
-            @click="stopSession"
+            class="flex items-center justify-center gap-3"
           >
-            <i class="ri-phone-fill " />
-            <span>End</span>
-          </Button>
+            <div class="relative">
+              <div
+                class="absolute z-10 flex items-center justify-center"
+                style="top: 6px; left: 6px;"
+              >
+                <PulseCircle
+                  ref="pulseCircle"
+                  :radius="14"
+                  :duration="500"
+                />
+              </div>
+              <div
+                class="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-full z-20 relative"
+              >
+                <i
+                  class="ri-mic-line text-gray-500"
+                />
+              </div>
+            </div>
+            <div
+              class="rounded-full bg-red-500 hover:bg-red-600 cursor-pointer w-10 h-10 flex items-center justify-center"
+              @click="stopSession"
+            >
+              <i class="ri-phone-fill text-white" />
+            </div>
+          </div>
         </div>
         <div
           v-if="microphone && micReady"
@@ -93,7 +115,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, type Ref, onMounted } from 'vue'
+import { ref, type Ref, onMounted, useTemplateRef } from 'vue'
 import { apiClient } from '@/lib/ajax'
 import { MicrophoneService } from './mic'
 import { AudioProcessor } from './processor'
@@ -104,12 +126,14 @@ import { usePageHeader } from '@/modules/header/usePageHeader'
 import { buildAudioChunk } from './buildAudioChunk'
 import Loading from '@/components/ui/Loading.vue'
 import { audioPlayingEvent, replyEvent } from './replyHandlerStream'
+import PulseCircle from './PulseCircle.vue'
+import { AudioChangeDetector } from '@/services/audioChangeDetector'
 
 const route = useRoute()
 const { setTitle } = usePageHeader()!
 
 const currentSessionId = ref<string | null>(null)
-const status = ref<'not_started' | 'preparing' | 'recording'>('not_started')
+const status = ref<'not_started' | 'preparing' | 'recording'>('recording')
 const agent: Ref<IAgent | null> = ref(null)
 let processor: AudioProcessor | null = null
 let microphone: MicrophoneService | null = null
@@ -119,6 +143,21 @@ let speakingInterval: ReturnType<typeof setInterval> | null = null
 let endSpeakingAt: number = 0
 const isSpeaking = ref(false)
 const currentTranscription = ref('')
+
+let visualizationBuffer: ArrayBuffer[] = []
+
+const pulseCircle = useTemplateRef('pulseCircle')
+
+function testPulse () {
+  pulseCircle.value?.createPulse()
+}
+
+const audioChangeDetector = new AudioChangeDetector((result) => {
+  if (result.isSpeaking) {
+    pulseCircle.value?.createPulse()
+  }
+})
+
 
 audioPlayingEvent.on((duration) => {
   if (!isSpeaking.value) {
@@ -148,9 +187,21 @@ replyEvent.on((reply) => {
   }
 })
 
-async function handleAudioBuffer (audioBuffer: ArrayBuffer, processor: AudioProcessor, sessionId: string, sequence: number) {
-  const audioData = await buildAudioChunk(sessionId, sequence, audioBuffer)
-  void processor.sendRaw(audioData)
+async function handleAudioBuffer (audioBuffer: ArrayBuffer, processor: AudioProcessor | null, sessionId: string | null, sequence: number) {
+  // const audioData = await buildAudioChunk(sessionId, sequence, audioBuffer)
+  // void processor.sendRaw(audioData)
+
+  if (visualizationBuffer.length > 2) {
+    const totalLength = visualizationBuffer.reduce((acc, buffer) => acc + buffer.byteLength, 0)
+    const tmp = new Uint8Array(totalLength)
+    for (let i = 0; i < visualizationBuffer.length; i++) {
+      tmp.set(new Uint8Array(visualizationBuffer[i]), i * visualizationBuffer[i].byteLength)
+    }
+    audioChangeDetector.processAudioChunk(tmp.buffer)
+    visualizationBuffer = []
+  } else {
+    visualizationBuffer.push(audioBuffer)
+  }
 }
 
 async function prepareMic () {
@@ -160,9 +211,9 @@ async function prepareMic () {
   }
 
   microphone = new MicrophoneService(async (audioBuffer, sequence) => {
-    if (!processor?.isConnected || !currentSessionId.value) {
-      return
-    }
+    // if (!processor?.isConnected || !currentSessionId.value) {
+    //   return
+    // }
 
     void handleAudioBuffer(audioBuffer, processor, currentSessionId.value, sequence)
   })

@@ -1,5 +1,7 @@
 import { ConversationState } from "./conversation_state"
-import { generateText } from "@/modules/text_completions/llm_groq"
+// import { generateText } from "@/modules/text_completions/llm_groq"
+// import { generateText } from "@/modules/text_completions/llm_openai"
+import { generateText } from "@/modules/text_completions/llm_claude"
 import { ConversationManager } from "./conversationManager"
 import type { ILLMService } from "./conversationManager"
 import { TextToSpeechService } from "@/modules/t2s/text_to_speech_service"
