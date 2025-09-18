@@ -133,7 +133,7 @@ const route = useRoute()
 const { setTitle } = usePageHeader()!
 
 const currentSessionId = ref<string | null>(null)
-const status = ref<'not_started' | 'preparing' | 'recording'>('recording')
+const status = ref<'not_started' | 'preparing' | 'recording'>('not_started')
 const agent: Ref<IAgent | null> = ref(null)
 let processor: AudioProcessor | null = null
 let microphone: MicrophoneService | null = null
@@ -187,9 +187,9 @@ replyEvent.on((reply) => {
   }
 })
 
-async function handleAudioBuffer (audioBuffer: ArrayBuffer, processor: AudioProcessor | null, sessionId: string | null, sequence: number) {
-  // const audioData = await buildAudioChunk(sessionId, sequence, audioBuffer)
-  // void processor.sendRaw(audioData)
+async function handleAudioBuffer (audioBuffer: ArrayBuffer, processor: AudioProcessor, sessionId: string, sequence: number) {
+  const audioData = await buildAudioChunk(sessionId, sequence, audioBuffer)
+  void processor.sendRaw(audioData)
 
   if (visualizationBuffer.length > 2) {
     const totalLength = visualizationBuffer.reduce((acc, buffer) => acc + buffer.byteLength, 0)
@@ -211,9 +211,9 @@ async function prepareMic () {
   }
 
   microphone = new MicrophoneService(async (audioBuffer, sequence) => {
-    // if (!processor?.isConnected || !currentSessionId.value) {
-    //   return
-    // }
+    if (!processor?.isConnected || !currentSessionId.value) {
+      return
+    }
 
     void handleAudioBuffer(audioBuffer, processor, currentSessionId.value, sequence)
   })
