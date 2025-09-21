@@ -3,6 +3,7 @@ import { WhisperGroq } from "./whisperGroq"
 import { DedupService } from "./dedupService"
 import { isEmpty } from "lodash"
 import { logger } from "@/logger"
+import { UsageControl } from "@/modules/usage/usageControl"
 
 const whisperGroq = new WhisperGroq()
 
@@ -20,11 +21,13 @@ export class TranscriptionService {
   private processingQueue: Array<{ buffer: Buffer, start: number, end: number }> = []
   private isProcessing: boolean = false
   private dedupService: DedupService
+  private usageControl: UsageControl
 
-  constructor(contextWords: number, onTranscription: (event: SpeechEvent) => void) {
+  constructor(contextWords: number, onTranscription: (event: SpeechEvent) => void, usageControl: UsageControl) {
     this.onTranscription = onTranscription
     this.contextWords = contextWords
     this.dedupService = new DedupService()
+    this.usageControl = usageControl
   }
 
   async startTranscription(buffer: Buffer, start: number, end: number) {
@@ -66,7 +69,7 @@ export class TranscriptionService {
     const contextText = recentBuffers.map(bh => bh.text).join(' ')
 
     const combinedBuffer = this.combineBuffers([...recentBuffers.map(bh => bh.buffer), buffer])
-    const segments = await whisperGroq.transcribe(combinedBuffer)
+    const segments = await whisperGroq.transcribe(combinedBuffer, { usageControl: this.usageControl })
 
     const finalText = segments.map(s => s.text).join(' ')
 

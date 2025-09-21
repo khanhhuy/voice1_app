@@ -56,6 +56,11 @@ class UsageControl {
     }
   }
 
+  updateTranscriptionUsage(speechDuration: number, nonSpeechDuration: number) {
+    this.usage.whisperGroq.speechDuration += speechDuration
+    this.usage.whisperGroq.nonSpeechDuration += nonSpeechDuration
+  }
+
   getUsage() {
     return this.usage
   }

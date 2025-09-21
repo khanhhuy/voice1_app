@@ -2,6 +2,7 @@ import { WebSocket } from "ws";
 import { logger } from "@/logger";
 import type { SpeechEvent } from "../../core/types/core";
 import { TranscriptionService } from "../s2t/transcriptionService";
+import { UsageControl } from "@/modules/usage/usageControl";
 
 interface IAudioMessage {
   type: 'speech_start' | 'speech_end'
@@ -52,14 +53,18 @@ export class AudioProcessor {
   private startTs: number = 0
   private endTs: number = 0
   private transcriptionService: TranscriptionService
+  private usageControl: UsageControl
 
   constructor(
     sessionId: string,
     onTranscription: (event: SpeechEvent) => void,
+    usageControl: UsageControl
   ) {
     this.sessionId = sessionId
     this.onTranscription = onTranscription
-    this.transcriptionService = new TranscriptionService(DEFAULT_CONTEXT_WORDS, onTranscription)
+    this.usageControl = usageControl
+
+    this.transcriptionService = new TranscriptionService(DEFAULT_CONTEXT_WORDS, onTranscription, usageControl)
   }
 
   async init () {

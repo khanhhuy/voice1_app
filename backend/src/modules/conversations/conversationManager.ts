@@ -51,8 +51,13 @@ class ConversationManager {
     this.llm = services.llm
     this.textToSpeech = services.textToSpeech
 
-    this.audioProcessor = new AudioProcessor(conversationState.getConversation().sessionId, this.onReceiveTranscription.bind(this))
     this.usageControl = new UsageControl(usage.usage, usage.quota)
+
+    this.audioProcessor = new AudioProcessor(
+      conversationState.getConversation().sessionId,
+      this.onReceiveTranscription.bind(this),
+      this.usageControl
+    )
 
   }
 

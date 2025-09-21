@@ -11,4 +11,20 @@ interface IAssistantReply {
   text?: string
 }
 
-export type { IUser, IAssistantReply }
+namespace ClientServerEvent {
+  export interface EndConvoEvent {
+    type: 'end-convo'
+    payload: {
+      sessionId: string
+    }
+  }
+
+  export type ConvoEvent = EndConvoEvent
+}
+
+export type {
+  IUser,
+  IAssistantReply,
+  ClientServerEvent
+}
+
