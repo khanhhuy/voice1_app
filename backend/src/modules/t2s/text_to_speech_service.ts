@@ -4,6 +4,7 @@ import { requestContext } from "@/services/requestContext"
 import type { ConversationState } from "@/modules/conversations/conversation_state"
 import { streamSpeech } from "./voiceInworld"
 import { IAssistantTurn } from "@/core/types/core"
+import { logger } from "@/logger"
 
 class TextToSpeechService implements ITextToSpeechService {
   private startStreaming = false
@@ -43,8 +44,8 @@ class TextToSpeechService implements ITextToSpeechService {
 
   private async onChunkCb (chunk: Buffer, streamService: TalkToUserService, state: ConversationState, turn: IAssistantTurn) {
     if (!this.startStreaming) {
-      console.log('Start streaming at ')
-      console.log(new Date().toISOString())
+      logger.debug('Start streaming at ')
+      logger.debug(new Date().toISOString())
       this.startStreaming = true
       await streamService.startStreaming()
       state.updateAssistantTurnStatus(turn.id, 'streaming-speech')

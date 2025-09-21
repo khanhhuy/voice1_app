@@ -1,4 +1,5 @@
 import { WebSocket } from "ws";
+import { logger } from "@/logger";
 import type { SpeechEvent } from "../../core/types/core";
 import { TranscriptionService } from "../s2t/transcriptionService";
 
@@ -66,7 +67,7 @@ export class AudioProcessor {
       this.ws = new WebSocket(`ws://${process.env.VAD_SERVER}/`)
 
       this.ws.on('open', () => {
-        console.log('Connected to VAD server for session', this.sessionId)
+        logger.info('Connected to VAD server for session', this.sessionId)
         resolve(true)
       })
 
@@ -76,7 +77,7 @@ export class AudioProcessor {
       })
 
       this.ws.on('error', (error) => {
-        console.error('Error connecting to VAD server for session', this.sessionId, error)
+        logger.error('Error connecting to VAD server for session', this.sessionId, error)
         reject(error)
       })
     })
@@ -89,7 +90,6 @@ export class AudioProcessor {
   handleMessage(message: IAudioMessage) {
     if (message.type === 'speech_start') {
       this.startTs = message.ts
-      // console.log('-- speech start at', new Date().toISOString())
       this.onTranscription({
         type: 'start-speech',
       })

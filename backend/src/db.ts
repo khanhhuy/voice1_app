@@ -18,7 +18,6 @@ const db = new Sequelize({
 });
 
 async function sync() {
-  console.log('Syncing database...')
   await db.sync({ alter: true });
 }
 

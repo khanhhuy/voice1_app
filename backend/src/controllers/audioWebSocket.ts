@@ -60,7 +60,7 @@ async function dispatchSignal(message: ClientServerEvent.ConvoEvent) {
     case 'end-convo':
       convoManager.receiveEndConvoSignal(message)
       clearSession(activeSession.sessionId)
-      console.log('********** Conversation ended **********', "user: ", userId, "session: ", activeSession.sessionId)
+      logger.info('Conversation ended', { userId, sessionId: activeSession.sessionId })
       break
     default:
       throw new Error('Invalid signal type')

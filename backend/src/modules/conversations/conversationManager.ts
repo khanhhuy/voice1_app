@@ -130,7 +130,6 @@ class ConversationManager {
       // - transcription time can be quite fast ~ 0.5s
       // - 1s is ok-ish, 0.5s is to fast
       if (this.isEndSpeechTurn(currentUserTurn)) {
-        console.log('-- end turn at', new Date().toISOString())
         this.conversationState.updateUserTurnStatus(currentUserTurn.id, 'wait-replying')
         this.conversationState.updateUserTurnFinishedAt(currentUserTurn.id, Date.now())
       }
@@ -184,14 +183,12 @@ class ConversationManager {
     if (lastAssistantTurn && lastAssistantTurn.status !== 'completed' && lastAssistantTurn.status !== 'cancelled') {
       // User is speaking after exceed waiting time, so we cancel the assistant turn to wait for more input
       if (lastUserTurn.status === 'speaking') {
-        console.log('cancel 3')
         this.conversationState.cancelAssistantTurn(lastAssistantTurn.id)
         return
       }
 
       // Cancel if responding to wrong turn
       if (lastAssistantTurn && lastAssistantTurn.responseToTurnId !== lastUserTurn.id) {
-        console.log('cancel 2')
         this.conversationState.cancelAssistantTurn(lastAssistantTurn.id)
       }
     }
@@ -254,7 +251,6 @@ class ConversationManager {
 
   private cancelInvalidUserTurn(lastAssistantTurn: IAssistantTurn | null, lastUserTurn: IUserTurn): void {
     if (lastAssistantTurn && lastAssistantTurn.responseToTurnId === lastUserTurn.id) {
-      console.log('cancel 1')
       this.conversationState.cancelAssistantTurn(lastAssistantTurn.id)
     }
     this.conversationState.updateUserTurnStatus(lastUserTurn.id, 'completed')

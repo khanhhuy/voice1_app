@@ -89,7 +89,7 @@ class ConversationState {
   }
 
   cancelAssistantTurn(turnId: string): void {
-    console.log('cancelling assistant turn', turnId)
+    logger.info('Cancelling assistant turn', { turnId })
     this.updateAssistantTurnStatus(turnId, 'cancelled')
   }
 

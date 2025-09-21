@@ -2,6 +2,7 @@ import { ITranscriptionEvent, SpeechEvent } from "@/core/types/core"
 import { WhisperGroq } from "./whisperGroq"
 import { DedupService } from "./dedupService"
 import { isEmpty } from "lodash"
+import { logger } from "@/logger"
 
 const whisperGroq = new WhisperGroq()
 
@@ -89,8 +90,8 @@ export class TranscriptionService {
 
     transcriptionEvent.status = 'transcribed'
     transcriptionEvent.updatedAt = Date.now()
-    console.log('==> Transcription: \x1b[33m' + newText + '\x1b[0m')
-    console.log(new Date().toISOString())
+
+    logger.debug('Transcription', { transcription: newText })
 
     transcriptionEvent.transcription = newText
   }

@@ -10,6 +10,7 @@ import { routes as authRoutes } from './controllers/authController'
 import { routes as userRoutes } from './controllers/userController'
 import { authMiddleware, getUserFromToken } from './middleware/authMiddleware'
 import { getDb, sync } from './db'
+import { logger } from './logger'
 
 const app = express()
 
@@ -98,8 +99,8 @@ server.on('upgrade', async (request, socket, head) => {
 
 server.listen(PORT, async () => {
   try {
-    console.log(`Server listening on port ${PORT}`)
-    console.log(`WebSocket audio service available at ws://localhost:${PORT}/talk`)
+    logger.info(`Server listening on port ${PORT}`)
+    logger.info(`WebSocket audio service available at ws://localhost:${PORT}/talk`)
 
     // initialize models
     getDb()
@@ -111,6 +112,6 @@ server.listen(PORT, async () => {
 })
 
 process.on('SIGINT', () => {
-  console.log('SIGINT signal received')
+  logger.info('SIGINT signal received')
   process.exit(0)
 })
