@@ -2,7 +2,7 @@ import { requestContext } from "@/services/requestContext"
 import { WebSocket } from "ws"
 import { ConversationState } from "../conversations/conversation_state"
 import { saveToDebug } from "@/services/utils"
-import type { IAssistantTurn } from "@/types"
+import type { IAssistantTurn } from "@/core/types/core"
 import type { IAssistantReply } from "@shared/shared_types"
 
 export class TalkToUserService {

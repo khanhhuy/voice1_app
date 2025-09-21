@@ -3,7 +3,7 @@ import type { ITextToSpeechService } from "@/modules/conversations/conversationM
 import { requestContext } from "@/services/requestContext"
 import type { ConversationState } from "@/modules/conversations/conversation_state"
 import { streamSpeech } from "./voiceInworld"
-import { IAssistantTurn } from "@/types"
+import { IAssistantTurn } from "@/core/types/core"
 
 class TextToSpeechService implements ITextToSpeechService {
   private startStreaming = false

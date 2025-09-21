@@ -1,4 +1,4 @@
-import { ITranscriptionEvent, SpeechEvent } from "@/types"
+import { ITranscriptionEvent, SpeechEvent } from "@/core/types/core"
 import { WhisperGroq } from "./whisperGroq"
 import { DedupService } from "./dedupService"
 import { isEmpty } from "lodash"

@@ -1,14 +1,9 @@
 import { WebSocket, WebSocketServer } from 'ws'
-import type { IStopSignal, IEndConvoSignal, SignalType, IStartSpeakingSignal } from "@/types"
 import { IncomingMessage } from 'http'
 import { clearSession, getConversationManager } from '@/modules/conversations/storage'
 import { requestContext } from '@/services/requestContext'
 import User from '@/models/User'
-
-interface ISignal {
-  type: SignalType
-  payload: any
-}
+import type { ClientServerEvent } from '@shared/shared_types'
 
 async function dispatchBinaryChunk(data: Buffer) {
   const userId = requestContext.currentUserId()
@@ -36,17 +31,19 @@ async function dispatchBinaryChunk(data: Buffer) {
   convoManager.receiveAudio(audioBuffer, sequence)
 }
 
-async function dispatchSignal(sessionId: string, signal: SignalType, payload: any) {
+async function dispatchSignal(message: ClientServerEvent.ConvoEvent) {
   const userId = requestContext.currentUserId()
+  const sessionId = message.payload.sessionId
+
   const convoManager = getConversationManager(userId, sessionId)
 
   if (!convoManager) {
     throw new Error('Conversation manager not found')
   }
 
-  switch (signal) {
+  switch (message.type) {
     case 'end-convo':
-      convoManager.receiveEndConvoSignal(payload as IEndConvoSignal)
+      convoManager.receiveEndConvoSignal(message)
       clearSession(userId, sessionId)
       console.log('********** Conversation ended **********', "user: ", userId, "session: ", sessionId)
       break
@@ -76,7 +73,7 @@ export class AudioWebSocketService {
         try {
           // Check if it's a JSON control message or binary audio data
           if (data[0] === 0x7B) { // '{' character - JSON message
-            const message: ISignal = JSON.parse(data.toString())
+            const message: ClientServerEvent.ConvoEvent = JSON.parse(data.toString())
             this.handleMessage(ws, message)
           } else {
             // Binary audio data - treat as chunk
@@ -99,8 +96,8 @@ export class AudioWebSocketService {
     })
   }
 
-  private handleMessage(ws: WebSocket, message: ISignal) {
-    dispatchSignal(message.payload.sessionId, message.type, message.payload)
+  private handleMessage(ws: WebSocket, message: ClientServerEvent.ConvoEvent) {
+    dispatchSignal(message)
   }
 
   private handleBinaryChunk(ws: WebSocket, data: Buffer) {

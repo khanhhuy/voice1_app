@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import { compact, flatten } from 'lodash';
-import { IAssistantTurn, IConversation, IUserTurn } from '@/types';
+import { IAssistantTurn, IConversation, IUserTurn } from '@/core/types/core';
 import { PROMPT } from './mae_prompt';
 
 const openai = new OpenAI();

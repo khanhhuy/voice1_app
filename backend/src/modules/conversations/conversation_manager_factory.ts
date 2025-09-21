@@ -5,7 +5,7 @@ import { generateText } from "@/modules/text_completions/llm_claude"
 import { ConversationManager } from "./conversationManager"
 import type { ILLMService } from "./conversationManager"
 import { TextToSpeechService } from "@/modules/t2s/text_to_speech_service"
-import { IAssistantTurn } from "@/types"
+import { IAssistantTurn } from "@/core/types/core"
 
 class LLMService implements ILLMService {
   async generateResponse(state: ConversationState, assistantTurn: IAssistantTurn, processingId: string) {

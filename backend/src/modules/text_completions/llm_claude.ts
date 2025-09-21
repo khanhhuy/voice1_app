@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { compact, flatten } from 'lodash';
-import { IAssistantTurn, IConversation, IUserTurn } from '@/types';
+import { IAssistantTurn, IConversation, IUserTurn } from '@/core/types/core';
 import { PROMPT } from './mae_prompt';
 
 const client = new Anthropic();
@@ -73,6 +73,8 @@ async function llmCompletion(messages: IMessage[]): Promise<string> {
       resolve(fullText)
     }).on('error', (error) => {
       reject(error)
+    }).on('message', (msg) => {
+      console.log(msg.usage)
     })
   })
 

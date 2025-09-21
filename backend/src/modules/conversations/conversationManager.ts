@@ -1,7 +1,8 @@
-import type { IAssistantTurn, IEndConvoSignal, IStartSpeakingSignal, IStopSignal, ITranscriptionEvent, IUserTurn, SpeechEvent } from "@/types"
+import type { IAssistantTurn, ITranscriptionEvent, IUserTurn, SpeechEvent } from "@/core/types/core"
 import { ConversationState } from "./conversation_state"
 import { AudioProcessor } from "./audioProcessor"
 import { some } from "lodash"
+import type { ClientServerEvent } from '@shared/shared_types'
 
 class SpeechEventHelper {
   static isDoneSpeaking(events: SpeechEvent[]): boolean {
@@ -271,7 +272,7 @@ class ConversationManager {
     this.audioProcessor.receiveRawAudioChunk(audioChunk)
   }
 
-  receiveEndConvoSignal(endConvoSignal: IEndConvoSignal): void {
+  receiveEndConvoSignal(event: ClientServerEvent.EndConvoEvent): void {
     this.stop()
   }
 }

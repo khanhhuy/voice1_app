@@ -1,6 +1,6 @@
 import { Groq } from 'groq-sdk';
 import { compact, flatten } from 'lodash';
-import { IAssistantTurn, IConversation, IUserTurn } from '@/types';
+import { IAssistantTurn, IConversation, IUserTurn } from '@/core/types/core';
 import {  PROMPT } from './mae_prompt';
 // import { GEMINI_PROMPT_1 as PROMPT } from './gemini_prompt1';
 

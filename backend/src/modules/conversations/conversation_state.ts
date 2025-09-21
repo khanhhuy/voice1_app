@@ -1,4 +1,4 @@
-import { IAssistantTurn, IConversation, IUserTurn, ITranscriptionEvent } from "@/types"
+import { IAssistantTurn, IConversation, IUserTurn, ITranscriptionEvent } from "@/core/types/core"
 import { some } from "lodash"
 
 const ASSISTANT_ID = 'jane'
@@ -13,7 +13,6 @@ class ConversationState {
       userTurns: [],
       assistantTurns: [],
       startTime: Date.now(),
-      lastSequenceNumber: 0
     }
   }
 

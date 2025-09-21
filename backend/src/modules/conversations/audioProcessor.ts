@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import type { SpeechEvent } from "../../types";
+import type { SpeechEvent } from "../../core/types/core";
 import { TranscriptionService } from "../s2t/transcriptionService";
 
 interface IAudioMessage {

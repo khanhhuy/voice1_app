@@ -2,6 +2,7 @@ import { Table, Column, Model, DataType, BelongsTo, CreatedAt, UpdatedAt, Index 
 import User from "./User";
 import Team from "./Team";
 import AIAgent from "./AIAgent";
+import type { ISession } from "@/core/types/core";
 
 @Table({
   timestamps: true,
@@ -40,7 +41,7 @@ export default class Session extends Model {
   declare duration_minutes: number;
 
   @Column({ type: DataType.JSONB, allowNull: false })
-  declare data: object;
+  declare data: ISession.Data;
 
   @Column({ type: DataType.JSONB, allowNull: false })
   declare usage: object;

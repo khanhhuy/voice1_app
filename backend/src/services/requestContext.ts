@@ -48,6 +48,13 @@ class RequestContext {
     return store.user.id;
   }
 
+  currentUser(): User {
+    const store = this.asyncLocalStorage.getStore();
+    if (!store) {
+      throw new Error('Request context is not set');
+    }
+    return store.user;
+  }
 }
 
 const requestContext = new RequestContext()
