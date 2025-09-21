@@ -1,42 +1,38 @@
-import { randomUInt32 } from "@/services/utils"
 import { ConversationState } from "./conversation_state"
 import { ConversationManager } from "./conversationManager"
 
 const STORE_CONVERSATION_MANAGER: {
-  [userId: string]: {
-    [sessionId: string]: ConversationManager
-  }
+  [sessionId: string]: ConversationManager
 } = {}
 
-function genSessionId(): string {
-  return randomUInt32().toString()
-}
-
-function defaultConversation(userId: string) {
-  const sessionId = genSessionId()
+function defaultConversation(userId: string, sessionId: string) {
   const conversationState = new ConversationState(sessionId, userId)
 
   return conversationState
 }
 
-function setConversationManager(userId: string, sessionId: string, conversationManager: ConversationManager) {
-  STORE_CONVERSATION_MANAGER[userId] = STORE_CONVERSATION_MANAGER[userId] || {}
-  STORE_CONVERSATION_MANAGER[userId][sessionId] = conversationManager
+function setConversationManager(sessionId: string, conversationManager: ConversationManager) {
+  STORE_CONVERSATION_MANAGER[sessionId] = conversationManager
 }
 
-function getConversationManager(userId: string, sessionId: string) {
-  return STORE_CONVERSATION_MANAGER[userId][sessionId]
+function getConversationManager(sessionId: string) {
+  return STORE_CONVERSATION_MANAGER[sessionId]
 }
 
-function clearSession(userId: string, sessionId: string | null) {
-  if (!STORE_CONVERSATION_MANAGER[userId]) {
-    return
+function getUserFromSession(sessionId: string) {
+  return STORE_CONVERSATION_MANAGER[sessionId].conversationState.getUserId()
+}
+
+function sessionMeta(sessionId: string) {
+  return {
+    userId: getUserFromSession(sessionId),
+    sessionId,
   }
+}
 
+function clearSession(sessionId: string | null) {
   if (sessionId) {
-    delete STORE_CONVERSATION_MANAGER[userId][sessionId]
-  } else {
-    delete STORE_CONVERSATION_MANAGER[userId]
+    delete STORE_CONVERSATION_MANAGER[sessionId]
   }
 }
 
@@ -45,4 +41,5 @@ export {
   setConversationManager,
   getConversationManager,
   clearSession,
+  sessionMeta,
 }

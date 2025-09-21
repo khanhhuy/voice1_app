@@ -140,6 +140,10 @@ class ConversationState {
     return this.getCurrentAssistantTurn()
   }
 
+  getUserId(): string {
+    return this.conversation.userId
+  }
+
   emptyUserTurn(): boolean {
     const lastUserTurn = this.getLastUserTurn()
 

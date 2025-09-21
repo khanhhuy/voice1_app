@@ -23,7 +23,7 @@ class SpeechEventHelper {
 // Conversation Manager
 class ConversationManager {
   private speechEventBuffer: SpeechEvent[]
-  private conversationState: ConversationState
+  public conversationState: ConversationState
   private loopInterval: number = 200 // milliseconds
   private intervalId: NodeJS.Timeout | null = null
 
@@ -33,8 +33,6 @@ class ConversationManager {
   private audioProcessor: AudioProcessor
 
   constructor(
-    sessionId: string,
-    participantId: string,
     conversationState: ConversationState,
     services: {
       llm: ILLMService,
@@ -45,7 +43,7 @@ class ConversationManager {
     this.conversationState = conversationState
     this.llm = services.llm
     this.textToSpeech = services.textToSpeech
-    this.audioProcessor = new AudioProcessor(sessionId, this.onReceiveTranscription.bind(this))
+    this.audioProcessor = new AudioProcessor(conversationState.getConversation().sessionId, this.onReceiveTranscription.bind(this))
   }
 
   async prepare(): Promise<void> {

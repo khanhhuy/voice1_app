@@ -5,13 +5,15 @@ import { requestContext } from "@/services/requestContext";
 import Session from "@/models/Session";
 import { ISession } from "@/core/types/core";
 import { defaultUsage } from "@/services/usageControl";
-
+import { omit } from "lodash";
 const routes = Router();
 
 routes.post("/", async (req, res) => {
   const user = requestContext.currentUser()
 
-  const conversationState = defaultConversation(user.id)
+  const PLACEHOLDER_SESSION_ID = '-1'
+
+  const conversationState = defaultConversation(user.id, PLACEHOLDER_SESSION_ID)
   const usage = defaultUsage()
 
   const session = await Session.create({
@@ -21,19 +23,18 @@ routes.post("/", async (req, res) => {
     status: 'created',
     started_at: new Date(),
     data: {
-      conversation: conversationState.getConversation(),
+      conversation: omit(conversationState.getConversation(), 'sessionId', 'userId'),
       usage,
     } satisfies ISession.Data,
     usage: {},
   })
 
-  // const convoManager = newConversationManager(userId, convo.getConversation().sessionId, convo)
-  // setConversationManager(
-  //   userId,
-  //   convo.getConversation().sessionId,
-  //   convoManager
-  // )
-  // await convoManager.prepare()
+  const convoManager = newConversationManager(conversationState)
+  setConversationManager(
+    conversationState.getConversation().sessionId,
+    convoManager
+  )
+  await convoManager.prepare()
 
   res.send({
     sessionId: session.id,

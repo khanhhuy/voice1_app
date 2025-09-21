@@ -2,12 +2,25 @@ import { WebSocket, WebSocketServer } from 'ws'
 import { IncomingMessage } from 'http'
 import { clearSession, getConversationManager } from '@/modules/conversations/storage'
 import { requestContext } from '@/services/requestContext'
+import { logger } from '@/logger'
 import User from '@/models/User'
 import type { ClientServerEvent } from '@shared/shared_types'
+import { sessionMeta } from '@/modules/conversations/storage'
+
+function getActiveSession(userId: string) {
+  const activeSession = sessionMeta(userId)
+
+  if (!activeSession) {
+    throw new Error('No active session found')
+  }
+
+  return activeSession
+}
 
 async function dispatchBinaryChunk(data: Buffer) {
   const userId = requestContext.currentUserId()
-  const sessionId = data.readUint32BE(0)
+  // TODO: remove this later because we already stored this in storage mapping
+  const _sessionId = data.readUint32BE(0)
   const sequence = data.readUInt32BE(4)
   const payloadLength = data.readUint32BE(8)
 
@@ -17,7 +30,8 @@ async function dispatchBinaryChunk(data: Buffer) {
 
   const audioBuffer = data.subarray(12, 12 + payloadLength)
 
-  const convoManager = getConversationManager(userId, sessionId.toString())
+  const activeSession = getActiveSession(userId)
+  const convoManager = getConversationManager(activeSession.sessionId)
 
   if (!convoManager) {
     throw new Error('Conversation manager not found')
@@ -33,9 +47,10 @@ async function dispatchBinaryChunk(data: Buffer) {
 
 async function dispatchSignal(message: ClientServerEvent.ConvoEvent) {
   const userId = requestContext.currentUserId()
-  const sessionId = message.payload.sessionId
+  // const sessionId = message.payload.sessionId
 
-  const convoManager = getConversationManager(userId, sessionId)
+  const activeSession = getActiveSession(userId)
+  const convoManager = getConversationManager(activeSession.sessionId)
 
   if (!convoManager) {
     throw new Error('Conversation manager not found')
@@ -44,8 +59,8 @@ async function dispatchSignal(message: ClientServerEvent.ConvoEvent) {
   switch (message.type) {
     case 'end-convo':
       convoManager.receiveEndConvoSignal(message)
-      clearSession(userId, sessionId)
-      console.log('********** Conversation ended **********', "user: ", userId, "session: ", sessionId)
+      clearSession(activeSession.sessionId)
+      console.log('********** Conversation ended **********', "user: ", userId, "session: ", activeSession.sessionId)
       break
     default:
       throw new Error('Invalid signal type')
@@ -66,7 +81,7 @@ export class AudioWebSocketService {
   }
 
   private handleConnection(ws: WebSocket, user: User) {
-    console.log('New audio WebSocket connection established')
+    logger.info('New audio WebSocket connection established', { userId: user.id })
 
     ws.on('message', (data: Buffer) => {
       requestContext.run({ user, ws }, () => {
@@ -74,46 +89,24 @@ export class AudioWebSocketService {
           // Check if it's a JSON control message or binary audio data
           if (data[0] === 0x7B) { // '{' character - JSON message
             const message: ClientServerEvent.ConvoEvent = JSON.parse(data.toString())
-            this.handleMessage(ws, message)
+            dispatchSignal(message)
           } else {
-            // Binary audio data - treat as chunk
-            this.handleBinaryChunk(ws, data)
+            dispatchBinaryChunk(data)
           }
         } catch (error) {
-          console.error('Error processing WebSocket message:', error)
-          this.sendError(ws, 'Error processing message')
+          logger.error('Error processing WebSocket message:', error)
         }
       })
     })
 
     ws.on('close', () => {
-      clearSession(user.id, null)
-      console.log('WebSocket connection closed')
+      const activeSession = getActiveSession(user.id)
+      clearSession(activeSession.sessionId)
+      logger.info('WebSocket connection closed', { userId: user.id })
     })
 
     ws.on('error', (error) => {
-      console.error('WebSocket error:', error)
-    })
-  }
-
-  private handleMessage(ws: WebSocket, message: ClientServerEvent.ConvoEvent) {
-    dispatchSignal(message)
-  }
-
-  private handleBinaryChunk(ws: WebSocket, data: Buffer) {
-    dispatchBinaryChunk(data)
-  }
-
-  private sendMessage(ws: WebSocket, message: any) {
-    if (ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify(message))
-    }
-  }
-
-  private sendError(ws: WebSocket, error: string) {
-    this.sendMessage(ws, {
-      type: 'error',
-      message: error
+      logger.error('WebSocket error:', error)
     })
   }
 }

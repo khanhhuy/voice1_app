@@ -88,6 +88,7 @@ server.on('upgrade', async (request, socket, head) => {
     return
   }
 
+  // can add more endpoints here
   if (pathname === '/talk') {
     audioWebSocketService.handleUpgrade(request, socket, head, user)
   } else {

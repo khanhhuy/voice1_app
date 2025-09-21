@@ -2,7 +2,7 @@ import type { IUsage, IConversation } from './core'
 
 namespace ISession {
   export interface Data {
-    conversation: IConversation
+    conversation: Omit<IConversation, 'sessionId' | 'userId'>
     usage: IUsage.Usage
   }
 }

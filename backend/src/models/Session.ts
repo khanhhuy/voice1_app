@@ -3,6 +3,7 @@ import User from "./User";
 import Team from "./Team";
 import AIAgent from "./AIAgent";
 import type { ISession } from "@/core/types/core";
+import { Op } from "sequelize";
 
 @Table({
   timestamps: true,
@@ -60,4 +61,18 @@ export default class Session extends Model {
 
   @UpdatedAt
   declare updated_at: Date;
+
+  static async findActiveSession(userId: string) {
+    const latestSession = await Session.findOne({
+      where: {
+        user_id: userId,
+        status: {
+          [Op.in]: ['paused', 'in_progress'],
+        },
+      },
+      order: [['created_at', 'DESC']],
+    })
+
+    return latestSession
+  }
 }
