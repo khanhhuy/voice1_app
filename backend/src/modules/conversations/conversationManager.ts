@@ -1,8 +1,10 @@
-import type { IAssistantTurn, ITranscriptionEvent, IUserTurn, SpeechEvent } from "@/core/types/core"
+import type { IAssistantTurn, ITranscriptionEvent, IUserTurn, SpeechEvent, IUsage } from "@/core/types/core"
 import { ConversationState } from "./conversation_state"
 import { AudioProcessor } from "./audioProcessor"
 import { some } from "lodash"
 import type { ClientServerEvent } from '@shared/shared_types'
+import Session from "@/models/Session"
+import { UsageControl } from "@/modules/usage/usageControl"
 
 class SpeechEventHelper {
   static isDoneSpeaking(events: SpeechEvent[]): boolean {
@@ -31,19 +33,27 @@ class ConversationManager {
   private llm: ILLMService
   private textToSpeech: ITextToSpeechService
   private audioProcessor: AudioProcessor
+  private usageControl: UsageControl
 
   constructor(
     conversationState: ConversationState,
     services: {
       llm: ILLMService,
       textToSpeech: ITextToSpeechService,
+    },
+    usage: {
+      usage: IUsage.Usage,
+      quota: IUsage.Quota,
     }
   ) {
     this.speechEventBuffer = []
     this.conversationState = conversationState
     this.llm = services.llm
     this.textToSpeech = services.textToSpeech
+
     this.audioProcessor = new AudioProcessor(conversationState.getConversation().sessionId, this.onReceiveTranscription.bind(this))
+    this.usageControl = new UsageControl(usage.usage, usage.quota)
+
   }
 
   async prepare(): Promise<void> {
@@ -56,6 +66,12 @@ class ConversationManager {
     }
 
     this.intervalId = setInterval(() => this.loop(), this.loopInterval)
+    await Session.update(
+      { status: 'in_progress' },
+      {
+        where: { id: this.conversationState.getConversation().sessionId }
+      }
+    )
   }
 
   stop(): void {

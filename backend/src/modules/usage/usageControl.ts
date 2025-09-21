@@ -1,5 +1,4 @@
-import Session from "@/models/Session";
-import { ISession, IUsage } from "@/core/types/core";
+import { IUsage } from "@/core/types/core";
 
 function defaultUsage(): IUsage.Usage {
   return {
@@ -21,24 +20,26 @@ function defaultUsage(): IUsage.Usage {
 }
 
 class UsageControl {
-  private session: Session
+  private usage: IUsage.Usage
+  private quota: IUsage.Quota
 
-  constructor(session: Session) {
-    this.session = session
+  constructor(usage: IUsage.Usage, quota: IUsage.Quota) {
+    this.usage = usage
+    this.quota = quota
   }
 
   updateUsage(usage: Partial<IUsage.Usage>) {
     if (usage.whisperGroq) {
-      const currentWhisper = this.session.data.usage.whisperGroq
-      this.session.data.usage.whisperGroq = {
+      const currentWhisper = this.usage.whisperGroq
+      this.usage.whisperGroq = {
         speechDuration: currentWhisper.speechDuration + usage.whisperGroq.speechDuration,
         nonSpeechDuration: currentWhisper.nonSpeechDuration + usage.whisperGroq.nonSpeechDuration,
       }
     }
 
     if (usage.claude) {
-      const currentClaude = this.session.data.usage.claude
-      this.session.data.usage.claude = {
+      const currentClaude = this.usage.claude
+      this.usage.claude = {
         cache_creation_input_tokens: currentClaude.cache_creation_input_tokens + usage.claude.cache_creation_input_tokens,
         cache_read_input_tokens: currentClaude.cache_read_input_tokens + usage.claude.cache_read_input_tokens,
         input_tokens: currentClaude.input_tokens + usage.claude.input_tokens,
@@ -47,8 +48,8 @@ class UsageControl {
     }
 
     if (usage.voiceInworld) {
-      const currentVoiceInworld = this.session.data.usage.voiceInworld
-      this.session.data.usage.voiceInworld = {
+      const currentVoiceInworld = this.usage.voiceInworld
+      this.usage.voiceInworld = {
         speechDuration: currentVoiceInworld.speechDuration + usage.voiceInworld.speechDuration,
         canceledDuration: currentVoiceInworld.canceledDuration + usage.voiceInworld.canceledDuration,
       }
@@ -56,19 +57,11 @@ class UsageControl {
   }
 
   getUsage() {
-    return this.session.data.usage
-  }
-
-  async refreshSession() {
-    const session = await Session.findByPk(this.session.id)
-    if (!session) {
-      throw new Error('Session not found')
-    }
-    this.session = session
+    return this.usage
   }
 
   printUsage() {
-    console.log('Usage:', JSON.stringify(this.session.data.usage, null, 2))
+    console.log('Usage:', JSON.stringify(this.usage, null, 2))
   }
 }
 

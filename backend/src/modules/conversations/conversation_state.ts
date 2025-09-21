@@ -1,4 +1,5 @@
 import { IAssistantTurn, IConversation, IUserTurn, ITranscriptionEvent } from "@/core/types/core"
+import { logger } from "@/logger"
 import { some } from "lodash"
 
 const ASSISTANT_ID = 'jane'

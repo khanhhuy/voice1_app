@@ -4,8 +4,10 @@ import { newConversationManager } from "@/modules/conversations/conversation_man
 import { requestContext } from "@/services/requestContext";
 import Session from "@/models/Session";
 import { ISession } from "@/core/types/core";
-import { defaultUsage } from "@/services/usageControl";
+import { defaultUsage } from "@/modules/usage/usageControl";
 import { omit } from "lodash";
+import { V1_QUOTA } from "@/modules/usage/quota";
+
 const routes = Router();
 
 routes.post("/", async (req, res) => {
@@ -29,7 +31,7 @@ routes.post("/", async (req, res) => {
     usage: {},
   })
 
-  const convoManager = newConversationManager(conversationState)
+  const convoManager = newConversationManager(conversationState, usage, V1_QUOTA)
   setConversationManager(
     conversationState.getConversation().sessionId,
     convoManager
