@@ -2,7 +2,7 @@ import { Table, Column, Model, DataType, BelongsTo, CreatedAt, UpdatedAt, Index 
 import User from "./User";
 import Team from "./Team";
 import AIAgent from "./AIAgent";
-import type { ISession } from "@/core/types/core";
+import type { ISession, ConversationStatus } from "@/core/types/core";
 import { Op } from "sequelize";
 
 @Table({
@@ -30,7 +30,8 @@ export default class Session extends Model {
     type: DataType.STRING(50),
     allowNull: false,
   })
-  declare status: 'created' | 'in_progress' | 'paused' | 'completed' | 'failed';
+  @Index
+  declare status: ConversationStatus;
 
   @Column({ type: DataType.DATE, allowNull: false })
   declare started_at: Date;

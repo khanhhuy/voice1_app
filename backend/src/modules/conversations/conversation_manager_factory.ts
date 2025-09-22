@@ -1,6 +1,6 @@
 import { ConversationState } from "./conversation_state"
 import { ConversationManager } from "./conversationManager"
-import { TextToSpeechService } from "@/modules/t2s/text_to_speech_service"
+import { TextToSpeechService } from "@/modules/t2s/textToSpeechService"
 import { LLMService } from "@/modules/text_completions/llmService"
 import { IUsage } from "@/core/types/core"
 

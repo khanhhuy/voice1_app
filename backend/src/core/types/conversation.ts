@@ -31,6 +31,7 @@ interface IAssistantTurn {
   processingId?: string // Track which async process is handling this
 }
 
+type ConversationStatus = 'created' | 'in_progress' | 'paused' | 'completed' | 'failed'
 interface IConversation {
   sessionId: string
   userId: string
@@ -38,6 +39,7 @@ interface IConversation {
   assistantTurns: IAssistantTurn[]
   startTime: number
   endTime?: number
+  status: ConversationStatus
 }
 
 interface IStartSpeechSignal {
@@ -58,4 +60,5 @@ export type {
   IStartSpeechSignal,
   IEndSpeechSignal,
   SpeechEvent,
+  ConversationStatus,
 }

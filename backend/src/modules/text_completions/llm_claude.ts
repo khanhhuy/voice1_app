@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { compact, flatten } from 'lodash';
 import { IAssistantTurn, IConversation, IUserTurn } from '@/core/types/core';
 import { PROMPT } from './mae_prompt';
+import { UsageControl } from '../usage/usageControl';
 
 const client = new Anthropic();
 
@@ -50,7 +51,7 @@ function buildMessagesFromConversation(conversation: IConversation): IMessage[] 
   return flatten(messages)
 }
 
-async function llmCompletion(messages: IMessage[]): Promise<string> {
+async function llmCompletion(messages: IMessage[], options: { usageControl?: UsageControl }): Promise<string> {
   const msg: IMessage[] = [...messages]
 
   const promise: Promise<string> = new Promise((resolve, reject) => {
@@ -74,16 +75,29 @@ async function llmCompletion(messages: IMessage[]): Promise<string> {
     }).on('error', (error) => {
       reject(error)
     }).on('message', (msg) => {
-      console.log(msg.usage)
+      if (options.usageControl) {
+        options.usageControl.updateUsage({
+          claude: {
+            cache_creation_input_tokens: msg.usage.cache_creation_input_tokens || 0,
+            cache_read_input_tokens: msg.usage.cache_read_input_tokens || 0,
+            input_tokens: msg.usage.input_tokens || 0,
+            output_tokens: msg.usage.output_tokens || 0,
+          }
+        })
+      }
     })
   })
 
   return promise
 }
 
-async function generateText(conversation: IConversation, forUserTurnId: string): Promise<{ text: string, responseToTurnId: string }> {
+async function generateText(
+  conversation: IConversation,
+  forUserTurnId: string,
+  options: { usageControl?: UsageControl }
+): Promise<{ text: string, responseToTurnId: string }> {
   const messages = buildMessagesFromConversation(conversation)
-  const completion = await llmCompletion(messages)
+  const completion = await llmCompletion(messages, options)
 
   return {
     text: completion,

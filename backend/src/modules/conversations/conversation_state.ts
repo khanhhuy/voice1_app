@@ -1,4 +1,4 @@
-import { IAssistantTurn, IConversation, IUserTurn, ITranscriptionEvent } from "@/core/types/core"
+import { IAssistantTurn, IConversation, IUserTurn, ITranscriptionEvent, ConversationStatus } from "@/core/types/core"
 import { logger } from "@/logger"
 import { some } from "lodash"
 
@@ -9,6 +9,7 @@ class ConversationState {
 
   constructor(sessionId: string, userId: string) {
     this.conversation = {
+      status: 'created',
       sessionId,
       userId,
       userTurns: [],
@@ -153,6 +154,10 @@ class ConversationState {
     return lastUserTurn.chunks.every((c) => {
       return c.status === 'ignored'
     })
+  }
+
+  updateConvoStatus(status: ConversationStatus): void {
+    this.conversation.status = status
   }
 }
 

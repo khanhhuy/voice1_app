@@ -61,6 +61,11 @@ class UsageControl {
     this.usage.whisperGroq.nonSpeechDuration += nonSpeechDuration
   }
 
+  updateSpeechUsage(speechDuration: number, canceledDuration: number) {
+    this.usage.voiceInworld.speechDuration += speechDuration
+    this.usage.voiceInworld.canceledDuration += canceledDuration
+  }
+
   getUsage() {
     return this.usage
   }

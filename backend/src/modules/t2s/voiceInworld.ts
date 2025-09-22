@@ -12,9 +12,23 @@ const options = {
   
 };
 
+function getAudioDuration(audioBuffer: Buffer): number {
+  // For LINEAR16 at 48kHz: 2 bytes per sample, 48000 samples per second
+  const bytesPerSample = 2;
+  const sampleRate = audioConfig.sample_rate_hertz;
+
+  // Skip WAV header if present (first 44 bytes)
+  const dataStartOffset = audioBuffer.length > 44 ? 44 : 0;
+  const audioDataSize = audioBuffer.length - dataStartOffset;
+
+  // Calculate duration in seconds
+  const totalSamples = audioDataSize / bytesPerSample;
+  return totalSamples / sampleRate;
+}
+
 async function streamSpeech (
   text: string,
-  onChunkCb: (chunk: Buffer) => void,
+  onChunkCb: (chunk: Buffer, audioDuration: number) => void,
   onEndCb: () => void
 ) {
   const response = await fetch(url, {
@@ -35,17 +49,21 @@ async function streamSpeech (
   for await (const line of lineReader) {
     const chunk = JSON.parse(line);
     const audioBuffer = Buffer.from(chunk.result.audioContent, 'base64');
+
+    // Extract duration from the audio buffer
+    const duration = getAudioDuration(audioBuffer);
     
+
     // Skip WAV header (44 bytes) and send raw PCM
     if (audioBuffer.length > 44) {
       const rawPCM = audioBuffer.slice(44);
-      
+
       // Send raw PCM data as binary
-      onChunkCb(rawPCM);
+      onChunkCb(rawPCM, duration);
     }
   }
 
   onEndCb()
 }
 
-export { streamSpeech }
+export { streamSpeech, getAudioDuration }

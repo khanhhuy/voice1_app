@@ -5,6 +5,7 @@ import { some } from "lodash"
 import type { ClientServerEvent } from '@shared/shared_types'
 import Session from "@/models/Session"
 import { UsageControl } from "@/modules/usage/usageControl"
+import { persistConversation } from "./persist"
 
 class SpeechEventHelper {
   static isDoneSpeaking(events: SpeechEvent[]): boolean {
@@ -58,7 +59,6 @@ class ConversationManager {
       this.onReceiveTranscription.bind(this),
       this.usageControl
     )
-
   }
 
   async prepare(): Promise<void> {
@@ -71,12 +71,8 @@ class ConversationManager {
     }
 
     this.intervalId = setInterval(() => this.loop(), this.loopInterval)
-    await Session.update(
-      { status: 'in_progress' },
-      {
-        where: { id: this.conversationState.getConversation().sessionId }
-      }
-    )
+    this.conversationState.updateConvoStatus('in_progress')
+    persistConversation(this.conversationState, this.usageControl)
   }
 
   stop(): void {
@@ -85,6 +81,9 @@ class ConversationManager {
       this.intervalId = null
     }
     this.audioProcessor.close()
+
+    this.conversationState.updateConvoStatus('completed')
+    persistConversation(this.conversationState, this.usageControl)
   }
 
   get isStarted(): boolean {
@@ -256,18 +255,21 @@ class ConversationManager {
         if (userTurn && userTurn.id === assistantTurn.responseToTurnId) {
           this.conversationState.updateUserTurnStatus(userTurn.id, 'completed')
         }
+
+        persistConversation(this.conversationState, this.usageControl)
+
         break
     }
   }
 
   private initLLMGeneration(assistantTurn: IAssistantTurn): void {
     const processingId = `llm-${assistantTurn.id}-${Date.now()}`
-    this.llm.generateResponse(this.conversationState, assistantTurn, processingId)
+    this.llm.generateResponse(this.conversationState, assistantTurn, processingId, { usageControl: this.usageControl })
   }
 
   private initSpeechGeneration(assistantTurn: IAssistantTurn): void {
     const processingId = `tts-${assistantTurn.id}-${Date.now()}`
-    this.textToSpeech.generateSpeech(this.conversationState, assistantTurn, processingId)
+    this.textToSpeech.generateSpeech(this.conversationState, assistantTurn, processingId, { usageControl: this.usageControl })
   }
 
   private cancelInvalidUserTurn(lastAssistantTurn: IAssistantTurn | null, lastUserTurn: IUserTurn): void {
@@ -294,11 +296,11 @@ class ConversationManager {
 
 // Service interfaces
 interface ILLMService {
-  generateResponse(state: ConversationState, assistantTurn: IAssistantTurn, processingId: string): void
+  generateResponse(state: ConversationState, assistantTurn: IAssistantTurn, processingId: string, options: { usageControl?: UsageControl }): void
 }
 
 interface ITextToSpeechService {
-  generateSpeech(state: ConversationState, assistantTurn: IAssistantTurn, processingId: string): void
+  generateSpeech(state: ConversationState, assistantTurn: IAssistantTurn, processingId: string, options: { usageControl?: UsageControl }): void
 }
 
 interface ITalkToUserService {

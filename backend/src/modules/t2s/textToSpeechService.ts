@@ -1,15 +1,16 @@
-import { TalkToUserService } from "./talk_to_user_stream_service"
+import { TalkToUserService } from "./talkToUser"
 import type { ITextToSpeechService } from "@/modules/conversations/conversationManager"
 import { requestContext } from "@/services/requestContext"
 import type { ConversationState } from "@/modules/conversations/conversation_state"
 import { streamSpeech } from "./voiceInworld"
 import { IAssistantTurn } from "@/core/types/core"
 import { logger } from "@/logger"
+import { UsageControl } from "@/modules/usage/usageControl"
 
 class TextToSpeechService implements ITextToSpeechService {
   private startStreaming = false
 
-  async generateSpeech(state: ConversationState, turn: IAssistantTurn, processingId: string) {
+  async generateSpeech(state: ConversationState, turn: IAssistantTurn, processingId: string, options: { usageControl?: UsageControl }) {
     this.startStreaming = false
 
     if (!turn || !turn.repliedText) {
@@ -25,13 +26,19 @@ class TextToSpeechService implements ITextToSpeechService {
     const streamService = new TalkToUserService(ws, state, turn)
 
     streamSpeech(turn.repliedText,
-      (chunk) => {
+      (chunk, audioDuration) => {
         if (turn.status === 'cancelled') {
           // stop streaming
+          if (options.usageControl) {
+            options.usageControl.updateSpeechUsage(0, audioDuration)
+          }
           return
         }
 
         this.onChunkCb(chunk, streamService, state, turn)
+        if (options.usageControl) {
+          options.usageControl.updateSpeechUsage(audioDuration, 0)
+        }
       },
       async () => {
         await streamService.endStreaming()
