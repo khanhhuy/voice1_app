@@ -31,9 +31,11 @@ routes.post("/", async (req, res) => {
     usage: {},
   })
 
+  conversationState.updateSessionId(session.id)
+
   const convoManager = newConversationManager(conversationState, usage, V1_QUOTA)
   setConversationManager(
-    conversationState.getConversation().sessionId,
+    user.id,
     convoManager
   )
   await convoManager.prepare()

@@ -1,20 +1,15 @@
 import { WebSocket, WebSocketServer } from 'ws'
 import { IncomingMessage } from 'http'
-import { clearSession, getConversationManager } from '@/modules/conversations/storage'
+import type { ConversationManager } from '@/modules/conversations/conversationManager'
+import { clearConversationManager, getConversationManager } from '@/modules/conversations/storage'
 import { requestContext } from '@/services/requestContext'
 import { logger } from '@/logger'
 import User from '@/models/User'
 import type { ClientServerEvent } from '@shared/shared_types'
-import { sessionMeta } from '@/modules/conversations/storage'
 
-function getActiveSession(userId: string) {
-  const activeSession = sessionMeta(userId)
-
-  if (!activeSession) {
-    throw new Error('No active session found')
-  }
-
-  return activeSession
+function stopAndCleanUp (convoManager: ConversationManager, userId: string) {
+  convoManager.receiveEndConvoSignal()
+  clearConversationManager(userId)
 }
 
 async function dispatchBinaryChunk(data: Buffer) {
@@ -30,8 +25,7 @@ async function dispatchBinaryChunk(data: Buffer) {
 
   const audioBuffer = data.subarray(12, 12 + payloadLength)
 
-  const activeSession = getActiveSession(userId)
-  const convoManager = getConversationManager(activeSession.sessionId)
+  const convoManager = getConversationManager(userId)
 
   if (!convoManager) {
     throw new Error('Conversation manager not found')
@@ -47,10 +41,8 @@ async function dispatchBinaryChunk(data: Buffer) {
 
 async function dispatchSignal(message: ClientServerEvent.ConvoEvent) {
   const userId = requestContext.currentUserId()
-  // const sessionId = message.payload.sessionId
 
-  const activeSession = getActiveSession(userId)
-  const convoManager = getConversationManager(activeSession.sessionId)
+  const convoManager = getConversationManager(userId)
 
   if (!convoManager) {
     throw new Error('Conversation manager not found')
@@ -58,9 +50,8 @@ async function dispatchSignal(message: ClientServerEvent.ConvoEvent) {
 
   switch (message.type) {
     case 'end-convo':
-      convoManager.receiveEndConvoSignal(message)
-      clearSession(activeSession.sessionId)
-      logger.info('Conversation ended', { userId, sessionId: activeSession.sessionId })
+      stopAndCleanUp(convoManager, userId)
+      logger.info('Conversation ended', { userId })
       break
     default:
       throw new Error('Invalid signal type')
@@ -94,19 +85,21 @@ export class AudioWebSocketService {
             dispatchBinaryChunk(data)
           }
         } catch (error) {
-          logger.error('Error processing WebSocket message:', error)
+          logger.error('Error processing WebSocket message:', { error })
         }
       })
     })
 
     ws.on('close', () => {
-      const activeSession = getActiveSession(user.id)
-      clearSession(activeSession.sessionId)
+      const convoManager = getConversationManager(user.id)
+      if (convoManager) {
+        stopAndCleanUp(convoManager, user.id)
+      }
       logger.info('WebSocket connection closed', { userId: user.id })
     })
 
     ws.on('error', (error) => {
-      logger.error('WebSocket error:', error)
+      logger.error('WebSocket error:', { error })
     })
   }
 }

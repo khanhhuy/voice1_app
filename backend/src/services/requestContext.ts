@@ -4,7 +4,6 @@ import { WebSocket } from 'ws';
 
 interface IRequestContext {
   user: User
-  sessionId?: string;
   ws?: WebSocket;
 }
 

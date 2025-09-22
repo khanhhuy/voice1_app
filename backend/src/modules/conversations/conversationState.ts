@@ -1,8 +1,6 @@
 import { IAssistantTurn, IConversation, IUserTurn, ITranscriptionEvent, ConversationStatus } from "@/core/types/core"
 import { logger } from "@/logger"
 
-const ASSISTANT_ID = 'jane'
-
 class ConversationState {
   private conversation: IConversation
 
@@ -25,7 +23,6 @@ class ConversationState {
     const turn: IUserTurn = {
       id: `user-${Date.now()}-${Math.random()}`,
       type: 'userTurn',
-      participantId: this.conversation.userId,
       chunks: [],
       status: 'new',
       allTranscribed: false,
@@ -69,7 +66,6 @@ class ConversationState {
     const turn: IAssistantTurn = {
       id: `assistant-${Date.now()}-${Math.random()}`,
       type: 'assistantTurn',
-      participantId: ASSISTANT_ID,
       responseToTurnId,
       status: 'wait-speaking',
       startTime: Date.now(),
@@ -157,6 +153,10 @@ class ConversationState {
 
   updateConvoStatus(status: ConversationStatus): void {
     this.conversation.status = status
+  }
+
+  updateSessionId(sessionId: string): void {
+    this.conversation.sessionId = sessionId
   }
 }
 

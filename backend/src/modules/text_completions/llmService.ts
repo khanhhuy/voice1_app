@@ -15,7 +15,7 @@ export class LLMService implements ILLMService {
     const response = await generateText(state.getConversation(), assistantTurn.id, options)
 
     logger.debug(new Date().toISOString())
-    logger.debug(`Assistant 🤖: ${assistantTurn.id} \n`, response.text)
+    logger.debug(`Assistant 🤖: ${assistantTurn.id} \n ${response.text} \n`)
 
     if (assistantTurn.status === 'cancelled') {
       return

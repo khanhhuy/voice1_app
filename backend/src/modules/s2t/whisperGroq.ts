@@ -120,7 +120,7 @@ export class WhisperGroq {
       this.updateUsage(
         options.usageControl,
         metadata.duration,
-        (transcription.segments || []).length === filteredSegments.length
+        (transcription.segments || []).length > filteredSegments.length
       )
     }
 

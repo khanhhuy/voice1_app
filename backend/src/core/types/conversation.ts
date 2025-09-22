@@ -8,7 +8,6 @@ interface ITranscriptionEvent {
 interface IUserTurn {
   id: string
   type: 'userTurn'
-  participantId: string
   chunks: ITranscriptionEvent[]
   cachedText?: string
   status: 'new' | 'speaking' | 'wait-replying' | 'completed'
@@ -21,7 +20,6 @@ interface IUserTurn {
 interface IAssistantTurn {
   id: string
   type: 'assistantTurn'
-  participantId: string
   responseToTurnId: string
   repliedText?: string
   status: 'wait-speaking' | 'generating-text' | 'generated-text' | 'generating-speech' | 'streaming-speech' | 'streamed-speech' | 'completed' | 'cancelled'

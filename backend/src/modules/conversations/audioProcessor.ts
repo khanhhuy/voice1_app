@@ -72,7 +72,7 @@ export class AudioProcessor {
       this.ws = new WebSocket(`ws://${process.env.VAD_SERVER}/`)
 
       this.ws.on('open', () => {
-        logger.info('Connected to VAD server for session', this.sessionId)
+        logger.info('Connected to VAD server for session', { sessionId: this.sessionId })
         resolve(true)
       })
 
@@ -82,7 +82,7 @@ export class AudioProcessor {
       })
 
       this.ws.on('error', (error) => {
-        logger.error('Error connecting to VAD server for session', this.sessionId, error)
+        logger.error('Error connecting to VAD server for session', { sessionId: this.sessionId, error })
         reject(error)
       })
     })

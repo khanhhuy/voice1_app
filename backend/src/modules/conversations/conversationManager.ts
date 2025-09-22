@@ -289,7 +289,7 @@ class ConversationManager {
     this.audioProcessor.receiveRawAudioChunk(audioChunk)
   }
 
-  receiveEndConvoSignal(event: ClientServerEvent.EndConvoEvent): void {
+  receiveEndConvoSignal(): void {
     this.stop()
   }
 }
