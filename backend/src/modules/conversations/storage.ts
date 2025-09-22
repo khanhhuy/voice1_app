@@ -1,4 +1,4 @@
-import { ConversationState } from "./conversation_state"
+import { ConversationState } from "./conversationState"
 import { ConversationManager } from "./conversationManager"
 
 const STORE_CONVERSATION_MANAGER: {

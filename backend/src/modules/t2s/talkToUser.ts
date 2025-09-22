@@ -1,6 +1,6 @@
 import { requestContext } from "@/services/requestContext"
 import { WebSocket } from "ws"
-import { ConversationState } from "../conversations/conversation_state"
+import { ConversationState } from "../conversations/conversationState"
 import { saveToDebug } from "@/services/utils"
 import type { IAssistantTurn } from "@/core/types/core"
 import type { IAssistantReply } from "@shared/shared_types"

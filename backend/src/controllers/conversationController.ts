@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { defaultConversation, setConversationManager } from "@/modules/conversations/storage";
-import { newConversationManager } from "@/modules/conversations/conversation_manager_factory";
+import { newConversationManager } from "@/modules/conversations/conversationManagerFactory";
 import { requestContext } from "@/services/requestContext";
 import Session from "@/models/Session";
 import { ISession } from "@/core/types/core";

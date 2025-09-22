@@ -1,4 +1,4 @@
-import { ConversationState } from "./conversation_state"
+import { ConversationState } from "./conversationState"
 import { ConversationManager } from "./conversationManager"
 import { TextToSpeechService } from "@/modules/t2s/textToSpeechService"
 import { LLMService } from "@/modules/text_completions/llmService"

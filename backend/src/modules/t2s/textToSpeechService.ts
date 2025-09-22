@@ -1,7 +1,7 @@
 import { TalkToUserService } from "./talkToUser"
 import type { ITextToSpeechService } from "@/modules/conversations/conversationManager"
 import { requestContext } from "@/services/requestContext"
-import type { ConversationState } from "@/modules/conversations/conversation_state"
+import type { ConversationState } from "@/modules/conversations/conversationState"
 import { streamSpeech } from "./voiceInworld"
 import { IAssistantTurn } from "@/core/types/core"
 import { logger } from "@/logger"

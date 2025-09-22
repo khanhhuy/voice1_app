@@ -1,5 +1,5 @@
 import type { IAssistantTurn, ITranscriptionEvent, IUserTurn, SpeechEvent, IUsage } from "@/core/types/core"
-import { ConversationState } from "./conversation_state"
+import { ConversationState } from "./conversationState"
 import { AudioProcessor } from "./audioProcessor"
 import { some } from "lodash"
 import type { ClientServerEvent } from '@shared/shared_types'

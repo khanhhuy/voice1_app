@@ -1,5 +1,5 @@
 import { generateText } from "./llm_claude"
-import { ConversationState } from "@/modules/conversations/conversation_state"
+import { ConversationState } from "@/modules/conversations/conversationState"
 import { IAssistantTurn } from "@/core/types/core"
 import { ILLMService } from "../conversations/conversationManager"
 import { logger } from "@/logger"

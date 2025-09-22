@@ -1,7 +1,7 @@
 import { UsageControl } from "../usage/usageControl";
 import { logger } from "@/logger";
 import { omit } from "lodash";
-import { ConversationState } from "./conversation_state";
+import { ConversationState } from "./conversationState";
 import Session from "@/models/Session";
 
 // TODO: handle race condition when the database has not been updated yet
